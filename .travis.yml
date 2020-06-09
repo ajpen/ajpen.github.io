@@ -9,7 +9,7 @@ before_script:
 script:
    - |
     for file in content/notebooks/*.ipynb; do
-      python -m nbconvert "$file --to markdown --output content/posts/$(basename $file).md" || continue
+        python -m nbconvert $file --to markdown --output-dir content/posts/ || continue
     done
    - $HOME/hugo
 
