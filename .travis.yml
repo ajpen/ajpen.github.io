@@ -1,17 +1,18 @@
 language: python
 
 before_script:
-    - wget 'https://github.com/gohugoio/hugo/releases/download/v0.72.0/hugo_0.72.0_Linux-64bit.tar.gz'
-    - tar -xvf hugo_0.72.0_Linux-64bit.tar.gz -C $HOME/
-    - chmod -x $HOME/hugo
-    - pip install nbconvert
+   - pip install nbconvert
 
 script:
    - |
     for file in content/notebooks/*.ipynb; do
         python -m nbconvert $file --to markdown --output-dir content/posts/ || continue
     done
-   - $HOME/hugo
+   
+   - wget 'https://github.com/gohugoio/hugo/releases/download/v0.72.0/hugo_0.72.0_Linux-64bit.tar.gz'
+   - tar -xvf hugo_0.72.0_Linux-64bit.tar.gz
+   - chmod +x ./hugo
+   - ./hugo
 
 
 deploy:
