@@ -10,11 +10,11 @@ tags: [
 ]
 ---
 
-I wrote down the three things I wanted to work on today; one being a blog post on how I automated adding content to this blog that you're currently reading. I was on a high after assembling what I thought was a simple but useful infrastructure, and I wanted to share it with the world. A google search quickly changed that as the entire results page was filled with blog posts about exact assembly I did.  
+I wrote down the three things I wanted to work on today; one being a blog post on how I automated adding content to this blog that you're currently reading. I was on a high after assembling what I thought was a simple but useful infrastructure, and I wanted to share it with the world. But then I decided to check for novelty in an attempt to not be redundant. It was then I realized the same infrastructure was assembled and documented by many individuals, some of which included a template for it on github. 
 
 I'm not writing the post anymore.  
 
-This is an example of what I believe is a gripe of the information age. Searching is reasonably difficult in our ocean of knowledge known as the internet. Its even harder for the one searching to find what they're looking for when they aren't sure themselves. Stack overflow is a great example of this, where almost everyday you find new questions already asked and answered multiple times on the same site. Senior users and mods often hide their frustrations with this under cheeky remarks about googling it themselves. Problem is, novice developers *don't know what to search for*. Search engines aren't librarians who can help you narrow down on what exactly you're looking for. They give you posts that exactly match what you searched for, or match some of the words in your search.  
+That moment highlighted one of the gripes of the information age. Searching the internet is difficult. Its even harder for the one searching to find what they're looking for when they aren't sure themselves. Stack overflow is a great example of this, where almost everyday you find new questions already asked and answered multiple times on the same site. Senior users and mods often hide their frustrations with this under cheeky remarks about googling it themselves. Problem is, novice developers *don't know what to search for*. Search engines aren't librarians who can help you narrow down on what exactly you're looking for. They give you posts that exactly match what you searched for, or match some of the words in your search.  
 
 #### So, what then?
 
