@@ -5,8 +5,8 @@ date: "2020-06-10"
 tags: [
 	"observation",
 	"coding",
-	"information"
-	"search engine"
+	"information",
+	"search engine",
 ]
 ---
 
