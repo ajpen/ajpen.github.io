@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on Anfernee Jervis</title>
-    <link>https://ajpen.github.io/posts/</link>
-    <description>Recent content in Posts on Anfernee Jervis</description>
+    <title>Web Scraping on Anfernee Jervis</title>
+    <link>https://ajpen.github.io/tags/web-scraping/</link>
+    <description>Recent content in Web Scraping on Anfernee Jervis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Tue, 16 Jun 2020 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://ajpen.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://ajpen.github.io/tags/web-scraping/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -18,15 +18,6 @@
       
       <guid>https://ajpen.github.io/posts/mta-turnstile-dataset-geotagging/</guid>
       <description>A Backstory in early 2019, I conducted research at BMCC on a noise pollution platform detailing the estimated noise pollution of neighborhoods in NYC (full paper here if you&amp;rsquo;re interested).</description>
-    </item>
-    
-    <item>
-      <title>Scarcity in an Ocean of Knowledge</title>
-      <link>https://ajpen.github.io/posts/scarcity-in-an-ocean-of-knowledge/</link>
-      <pubDate>Wed, 10 Jun 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://ajpen.github.io/posts/scarcity-in-an-ocean-of-knowledge/</guid>
-      <description>I wrote down the three things I wanted to work on today; one being a blog post on how I automated adding content to the blog that you&amp;rsquo;re currently reading.</description>
     </item>
     
   </channel>
