@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="format-detection" content="telephone=no"/>
 
-    <title>&#39;Sane&#39;itizing MTA&#39;s Turnstile Datasets: Geotagging Part 1 | Anfernee Jervis</title>
+    <title>&#39;Sane&#39;itizing MTA&#39;s Turnstile Datasets: Geotagging | Anfernee Jervis</title>
     
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -19,7 +19,7 @@
     
     
     
-    <link rel="stylesheet" href="https://ajpen.github.io/css/main.min.15431d6c334f65809fe2bc329da3f2c81c6e3027ab1e25b56afb2bb85fa7fd64.css"/>
+    <link rel="stylesheet" href="https://ajpen.github.io/css/main.min.1f624ff54c9c641a10b080f3ad8f8106f4e7a01685155cfecee34b0c5afbbd5c.css"/>
 
     
     
@@ -175,7 +175,7 @@ if (!doNotTrack) {
         <div id="content" class="content-container">
         
 
-<h1 class="post-title">&#39;Sane&#39;itizing MTA&#39;s Turnstile Datasets: Geotagging Part 1</h1>
+<h1 class="post-title">&#39;Sane&#39;itizing MTA&#39;s Turnstile Datasets: Geotagging</h1>
     
     <time>June 16, 2020</time>
     
@@ -222,7 +222,7 @@ url <span style="color:#f92672">=</span> get_available_datasets()[<span style="c
 <span style="color:#66d9ef">with</span> urllib<span style="color:#f92672">.</span>request<span style="color:#f92672">.</span>urlopen(url) <span style="color:#66d9ef">as</span> response:
   df <span style="color:#f92672">=</span> pandas<span style="color:#f92672">.</span>read_csv(response)
 
-df
+df<span style="color:#f92672">.</span>head(<span style="color:#ae81ff">5</span>)
 </code></pre></div><div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -325,93 +325,8 @@ df
       <td>7420972</td>
       <td>2521174</td>
     </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>206657</th>
-      <td>TRAM2</td>
-      <td>R469</td>
-      <td>00-05-01</td>
-      <td>RIT-ROOSEVELT</td>
-      <td>R</td>
-      <td>RIT</td>
-      <td>06/12/2020</td>
-      <td>05:00:00</td>
-      <td>REGULAR</td>
-      <td>5554</td>
-      <td>514</td>
-    </tr>
-    <tr>
-      <th>206658</th>
-      <td>TRAM2</td>
-      <td>R469</td>
-      <td>00-05-01</td>
-      <td>RIT-ROOSEVELT</td>
-      <td>R</td>
-      <td>RIT</td>
-      <td>06/12/2020</td>
-      <td>09:00:00</td>
-      <td>REGULAR</td>
-      <td>5554</td>
-      <td>514</td>
-    </tr>
-    <tr>
-      <th>206659</th>
-      <td>TRAM2</td>
-      <td>R469</td>
-      <td>00-05-01</td>
-      <td>RIT-ROOSEVELT</td>
-      <td>R</td>
-      <td>RIT</td>
-      <td>06/12/2020</td>
-      <td>13:00:00</td>
-      <td>REGULAR</td>
-      <td>5554</td>
-      <td>514</td>
-    </tr>
-    <tr>
-      <th>206660</th>
-      <td>TRAM2</td>
-      <td>R469</td>
-      <td>00-05-01</td>
-      <td>RIT-ROOSEVELT</td>
-      <td>R</td>
-      <td>RIT</td>
-      <td>06/12/2020</td>
-      <td>17:00:00</td>
-      <td>REGULAR</td>
-      <td>5554</td>
-      <td>514</td>
-    </tr>
-    <tr>
-      <th>206661</th>
-      <td>TRAM2</td>
-      <td>R469</td>
-      <td>00-05-01</td>
-      <td>RIT-ROOSEVELT</td>
-      <td>R</td>
-      <td>RIT</td>
-      <td>06/12/2020</td>
-      <td>21:00:00</td>
-      <td>REGULAR</td>
-      <td>5554</td>
-      <td>514</td>
-    </tr>
   </tbody>
 </table>
-<p>206662 rows × 11 columns</p>
 </div>
 <p>Not bad right? Besides the columns that aren&rsquo;t immediately obvious (C/A, SCP, etc) we can see that the first 4 rows are counts from the 59th ST station. Wait, which station? There&rsquo;s multiple stations at 59 ST in Manhattan.</p>
 <p>Well if we look at the stops at that station (represented by the LINENAME column), we can guess that it must be the Lexington Avenue/59th Street station. You can also confirm this by looking for all the stations with 59 ST in the names. You&rsquo;ll see that the one for Columbus Circle says &ldquo;Columbus&rdquo; in its name:</p>
@@ -429,7 +344,7 @@ df[df[<span style="color:#e6db74">&#34;STATION&#34;</span>]<span style="color:#f
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#66d9ef">with</span> urllib<span style="color:#f92672">.</span>request<span style="color:#f92672">.</span>urlopen(<span style="color:#e6db74">&#34;http://web.mta.info/developers/data/nyct/subway/Stations.csv&#34;</span>) <span style="color:#66d9ef">as</span> response:
   stationsdf <span style="color:#f92672">=</span> pandas<span style="color:#f92672">.</span>read_csv(response)
 
-stationsdf
+stationsdf<span style="color:#f92672">.</span>head(<span style="color:#ae81ff">5</span>)
 </code></pre></div><div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -544,105 +459,8 @@ stationsdf
       <td>Astoria - Ditmars Blvd</td>
       <td>Manhattan</td>
     </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>491</th>
-      <td>517</td>
-      <td>517</td>
-      <td>S15</td>
-      <td>SIR</td>
-      <td>Staten Island</td>
-      <td>Prince's Bay</td>
-      <td>SI</td>
-      <td>SIR</td>
-      <td>Open Cut</td>
-      <td>40.525507</td>
-      <td>-74.200064</td>
-      <td>St George</td>
-      <td>Tottenville</td>
-    </tr>
-    <tr>
-      <th>492</th>
-      <td>518</td>
-      <td>518</td>
-      <td>S14</td>
-      <td>SIR</td>
-      <td>Staten Island</td>
-      <td>Pleasant Plains</td>
-      <td>SI</td>
-      <td>SIR</td>
-      <td>Embankment</td>
-      <td>40.522410</td>
-      <td>-74.217847</td>
-      <td>St George</td>
-      <td>Tottenville</td>
-    </tr>
-    <tr>
-      <th>493</th>
-      <td>519</td>
-      <td>519</td>
-      <td>S13</td>
-      <td>SIR</td>
-      <td>Staten Island</td>
-      <td>Richmond Valley</td>
-      <td>SI</td>
-      <td>SIR</td>
-      <td>Open Cut</td>
-      <td>40.519631</td>
-      <td>-74.229141</td>
-      <td>St George</td>
-      <td>Tottenville</td>
-    </tr>
-    <tr>
-      <th>494</th>
-      <td>522</td>
-      <td>522</td>
-      <td>S09</td>
-      <td>SIR</td>
-      <td>Staten Island</td>
-      <td>Tottenville</td>
-      <td>SI</td>
-      <td>SIR</td>
-      <td>At Grade</td>
-      <td>40.512764</td>
-      <td>-74.251961</td>
-      <td>St George</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>495</th>
-      <td>523</td>
-      <td>523</td>
-      <td>S11</td>
-      <td>SIR</td>
-      <td>Staten Island</td>
-      <td>Arthur Kill</td>
-      <td>SI</td>
-      <td>SIR</td>
-      <td>At Grade</td>
-      <td>40.516578</td>
-      <td>-74.242096</td>
-      <td>St George</td>
-      <td>Tottenville</td>
-    </tr>
   </tbody>
 </table>
-<p>496 rows × 13 columns</p>
 </div>
 <p>Great, now we have quite a bit of location data for each station. Let&rsquo;s see what shows up when we search for &ldquo;59 st&rdquo; in the stop name. That&rsquo;ll give us an idea of the possibility of joining on stop name/STATION columns:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Computer, I am once again asking you to give me all the Station names with &#34;59 St&#34; in them</span>
@@ -1254,10 +1072,23 @@ station_stop_names <span style="color:#f92672">=</span> station_stops<span style
 results <span style="color:#f92672">=</span> df[[<span style="color:#e6db74">&#39;STATION&#39;</span>,<span style="color:#e6db74">&#39;LINENAME&#39;</span>]]<span style="color:#f92672">.</span>drop_duplicates()<span style="color:#f92672">.</span>reset_index()<span style="color:#f92672">.</span>apply(match_records, axis<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)
 </code></pre></div><p>Okay we&rsquo;re close! There are a couple of stations that aren&rsquo;t matching correctly, or don&rsquo;t exist in your locations dataset. We&rsquo;ll have to do some manual vetting to take care of those (don&rsquo;t worry, I did it myself.)</p>
 <p>Now, lets clean our data, fix the wrong matches, and use the mapping to geotag the turnstile dataset.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Here&#39;s a list of items that weren&#39;t a perfect match for both station names and routes. </span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Here&#39;s a list of items that weren&#39;t a perfect match for both station names and routes *surpressed to the first 2* </span>
 <span style="color:#75715e"># We&#39;ll review these and remove the ones we cant fix, or update the mismatches</span>
-_ <span style="color:#f92672">=</span> [x <span style="color:#66d9ef">for</span> x <span style="color:#f92672">in</span> results <span style="color:#66d9ef">if</span> x[<span style="color:#e6db74">&#39;line_fuzz_ratio&#39;</span>] <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">100</span> <span style="color:#f92672">and</span> x[<span style="color:#e6db74">&#34;name_match&#34;</span>][<span style="color:#ae81ff">1</span>] <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">100</span>]
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Missed matches here:</span>
+[x <span style="color:#66d9ef">for</span> x <span style="color:#f92672">in</span> results <span style="color:#66d9ef">if</span> x[<span style="color:#e6db74">&#39;line_fuzz_ratio&#39;</span>] <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">100</span> <span style="color:#f92672">and</span> x[<span style="color:#e6db74">&#34;name_match&#34;</span>][<span style="color:#ae81ff">1</span>] <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">100</span>][:<span style="color:#ae81ff">2</span>]
+</code></pre></div><pre><code>[{'station': 'WHITEHALL S-FRY',
+  'name_match': ('WhitehallSt', 83),
+  'line_match': 'RW1',
+  'station_line': 'R1W',
+  'stop_name_match': 'Whitehall St',
+  'line_fuzz_ratio': 67},
+ {'station': 'DELANCEY/ESSEX',
+  'name_match': ('DelanceySt', 75),
+  'line_match': 'JMZF',
+  'station_line': 'FJMZ',
+  'stop_name_match': 'Delancey St',
+  'line_fuzz_ratio': 75}]
+</code></pre>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Fixed missed matches here:</span>
 <span style="color:#75715e"># the patched key is there to identify records that were manually corrected</span>
 mismatches <span style="color:#f92672">=</span> {
  <span style="color:#e6db74">&#39;FLATBUSH AV-B.C&#39;</span>: {<span style="color:#e6db74">&#39;station&#39;</span>: <span style="color:#e6db74">&#39;FLATBUSH AV-B.C&#39;</span>,
@@ -1268,32 +1099,6 @@ mismatches <span style="color:#f92672">=</span> {
   <span style="color:#e6db74">&#39;line_fuzz_ratio&#39;</span>: <span style="color:#ae81ff">100</span>,
   <span style="color:#e6db74">&#39;patched&#39;</span>: True},
   
-  <span style="color:#e6db74">&#39;CENTRAL PK N110&#39;</span>: {<span style="color:#e6db74">&#39;station&#39;</span>: <span style="color:#e6db74">&#39;CENTRAL PK N110&#39;</span>, 
-  <span style="color:#e6db74">&#39;name_match&#39;</span>: (<span style="color:#e6db74">&#39;Central Park North (110 St)&#39;</span>, <span style="color:#ae81ff">100</span>),
-  <span style="color:#e6db74">&#39;line_match&#39;</span>: <span style="color:#e6db74">&#39;23&#39;</span>,
-  <span style="color:#e6db74">&#39;station_line&#39;</span>: <span style="color:#e6db74">&#39;23&#39;</span>,
-  <span style="color:#e6db74">&#39;stop_name_match&#39;</span>: <span style="color:#e6db74">&#39;Central Park North (110 St)&#39;</span>,
-  <span style="color:#e6db74">&#39;line_fuzz_ratio&#39;</span>: <span style="color:#ae81ff">100</span>,
-  <span style="color:#e6db74">&#39;patched&#39;</span>: True},
-    
-  <span style="color:#e6db74">&#39;V.CORTLANDT PK&#39;</span>: {<span style="color:#e6db74">&#39;station&#39;</span>: <span style="color:#e6db74">&#39;V.CORTLANDT PK&#39;</span>,
-  <span style="color:#e6db74">&#39;name_match&#39;</span>: (<span style="color:#e6db74">&#39;VanCortlandtPark-242St&#39;</span>, <span style="color:#ae81ff">100</span>),
-  <span style="color:#e6db74">&#39;line_match&#39;</span>: <span style="color:#e6db74">&#39;1&#39;</span>,
-  <span style="color:#e6db74">&#39;station_line&#39;</span>: <span style="color:#e6db74">&#39;1&#39;</span>,
-  <span style="color:#e6db74">&#39;stop_name_match&#39;</span>: <span style="color:#e6db74">&#39;Van Cortlandt Park - 242 St&#39;</span>,
-  <span style="color:#e6db74">&#39;line_fuzz_ratio&#39;</span>: <span style="color:#ae81ff">100</span>,
-  <span style="color:#e6db74">&#39;patched&#39;</span>: True},
-
-  
-  <span style="color:#e6db74">&#39;HOYT-SCHER&#39;</span>: {<span style="color:#e6db74">&#39;station&#39;</span>: <span style="color:#e6db74">&#39;HOYT-SCHER&#39;</span>,
-  <span style="color:#e6db74">&#39;name_match&#39;</span>: (<span style="color:#e6db74">&#39;HoytSchermerhornSts&#39;</span>, <span style="color:#ae81ff">67</span>),
-  <span style="color:#e6db74">&#39;line_match&#39;</span>: <span style="color:#e6db74">&#39;ACG&#39;</span>,
-  <span style="color:#e6db74">&#39;station_line&#39;</span>: <span style="color:#e6db74">&#39;ACG&#39;</span>,
-  <span style="color:#e6db74">&#39;stop_name_match&#39;</span>: <span style="color:#e6db74">&#39;Hoyt - Schermerhorn Sts&#39;</span>,
-  <span style="color:#e6db74">&#39;line_fuzz_ratio&#39;</span>: <span style="color:#ae81ff">100</span>,
-  <span style="color:#e6db74">&#39;patched&#39;</span>: True},
-    
-    
   <span style="color:#e6db74">&#39;ROCKAWAY PARK B&#39;</span>: {<span style="color:#e6db74">&#39;station&#39;</span>: <span style="color:#e6db74">&#39;ROCKAWAY PARK B&#39;</span>,
   <span style="color:#e6db74">&#39;name_match&#39;</span>: (<span style="color:#e6db74">&#39;RockawayParkBeach116St&#39;</span>, <span style="color:#ae81ff">100</span>),
   <span style="color:#e6db74">&#39;line_match&#39;</span>: <span style="color:#e6db74">&#39;AS&#39;</span>,
@@ -1301,54 +1106,7 @@ mismatches <span style="color:#f92672">=</span> {
   <span style="color:#e6db74">&#39;stop_name_match&#39;</span>: <span style="color:#e6db74">&#39;Rockaway Park - Beach 116 St&#39;</span>,
   <span style="color:#e6db74">&#39;line_fuzz_ratio&#39;</span>: <span style="color:#ae81ff">100</span>,
   <span style="color:#e6db74">&#39;patched&#39;</span>: True},
-    
-  <span style="color:#e6db74">&#39;4 AV-9 ST&#39;</span>: {<span style="color:#e6db74">&#39;station&#39;</span>: <span style="color:#e6db74">&#39;4 AV-9 ST&#39;</span>,
-  <span style="color:#e6db74">&#39;name_match&#39;</span>: (<span style="color:#e6db74">&#39;9St&#39;</span>, <span style="color:#ae81ff">80</span>),
-  <span style="color:#e6db74">&#39;line_match&#39;</span>: <span style="color:#e6db74">&#39;RFG&#39;</span>,
-  <span style="color:#e6db74">&#39;station_line&#39;</span>: <span style="color:#e6db74">&#39;NRW&#39;</span>,
-  <span style="color:#e6db74">&#39;stop_name_match&#39;</span>: <span style="color:#e6db74">&#39;9 St&#39;</span>,
-  <span style="color:#e6db74">&#39;line_fuzz_ratio&#39;</span>: <span style="color:#ae81ff">44</span>,
-  <span style="color:#e6db74">&#39;patched&#39;</span>: True},
-  
-  <span style="color:#e6db74">&#39;BEDFORD PK BLVD&#39;</span>: {<span style="color:#e6db74">&#39;station&#39;</span>: <span style="color:#e6db74">&#39;BEDFORD PK BLVD&#39;</span>,
-  <span style="color:#e6db74">&#39;name_match&#39;</span>: (<span style="color:#e6db74">&#39;BedfordParkBlvdLehmanCollege&#39;</span>, <span style="color:#ae81ff">100</span>),
-  <span style="color:#e6db74">&#39;line_match&#39;</span>: <span style="color:#e6db74">&#39;4&#39;</span>,
-  <span style="color:#e6db74">&#39;station_line&#39;</span>: <span style="color:#e6db74">&#39;4&#39;</span>,
-  <span style="color:#e6db74">&#39;stop_name_match&#39;</span>: <span style="color:#e6db74">&#39;Bedford Park Blvd - Lehman College&#39;</span>,
-  <span style="color:#e6db74">&#39;line_fuzz_ratio&#39;</span>: <span style="color:#ae81ff">100</span>,
-  <span style="color:#e6db74">&#39;patched&#39;</span>: True},
-  
-  <span style="color:#e6db74">&#39;33 ST-RAWSON ST&#39;</span>: {<span style="color:#e6db74">&#39;station&#39;</span>: <span style="color:#e6db74">&#39;33 ST-RAWSON ST&#39;</span>,
-  <span style="color:#e6db74">&#39;name_match&#39;</span>: (<span style="color:#e6db74">&#39;33St&#39;</span>, <span style="color:#ae81ff">100</span>),
-  <span style="color:#e6db74">&#39;line_match&#39;</span>: <span style="color:#e6db74">&#39;7&#39;</span>,
-  <span style="color:#e6db74">&#39;station_line&#39;</span>: <span style="color:#e6db74">&#39;7&#39;</span>,
-  <span style="color:#e6db74">&#39;stop_name_match&#39;</span>: <span style="color:#e6db74">&#39;33 St&#39;</span>,
-  <span style="color:#e6db74">&#39;line_fuzz_ratio&#39;</span>: <span style="color:#ae81ff">100</span>,
-  <span style="color:#e6db74">&#39;patched&#39;</span>: True},
-  
-  <span style="color:#e6db74">&#39;40 ST LOWERY ST&#39;</span>: {<span style="color:#e6db74">&#39;station&#39;</span>: <span style="color:#e6db74">&#39;40 ST LOWERY ST&#39;</span>,
-  <span style="color:#e6db74">&#39;name_match&#39;</span>: (<span style="color:#e6db74">&#39;40st&#39;</span>, <span style="color:#ae81ff">100</span>),
-  <span style="color:#e6db74">&#39;line_match&#39;</span>: <span style="color:#e6db74">&#39;7&#39;</span>,
-  <span style="color:#e6db74">&#39;station_line&#39;</span>: <span style="color:#e6db74">&#39;7&#39;</span>,
-  <span style="color:#e6db74">&#39;stop_name_match&#39;</span>: <span style="color:#e6db74">&#39;40 St&#39;</span>,
-  <span style="color:#e6db74">&#39;line_fuzz_ratio&#39;</span>: <span style="color:#ae81ff">100</span>,
-  <span style="color:#e6db74">&#39;patched&#39;</span>: True},
-  
-  <span style="color:#e6db74">&#39;46 ST BLISS ST&#39;</span>: {<span style="color:#e6db74">&#39;station&#39;</span>: <span style="color:#e6db74">&#39;46 ST BLISS ST&#39;</span>,
-  <span style="color:#e6db74">&#39;name_match&#39;</span>: (<span style="color:#e6db74">&#39;46St&#39;</span>, <span style="color:#ae81ff">100</span>),
-  <span style="color:#e6db74">&#39;line_match&#39;</span>: <span style="color:#e6db74">&#39;7&#39;</span>,
-  <span style="color:#e6db74">&#39;station_line&#39;</span>: <span style="color:#e6db74">&#39;7&#39;</span>,
-  <span style="color:#e6db74">&#39;stop_name_match&#39;</span>: <span style="color:#e6db74">&#39;46 St&#39;</span>,
-  <span style="color:#e6db74">&#39;line_fuzz_ratio&#39;</span>: <span style="color:#ae81ff">100</span>,
-  <span style="color:#e6db74">&#39;patched&#39;</span>: True},
- 
- <span style="color:#e6db74">&#39;34 ST-HUDSON YD&#39;</span>: {<span style="color:#e6db74">&#39;station&#39;</span>: <span style="color:#e6db74">&#39;34 ST-HUDSON YD&#39;</span>,
-  <span style="color:#e6db74">&#39;name_match&#39;</span>: (<span style="color:#e6db74">&#39;34St11Av&#39;</span>, <span style="color:#ae81ff">100</span>),
-  <span style="color:#e6db74">&#39;line_match&#39;</span>: <span style="color:#e6db74">&#39;7&#39;</span>,
-  <span style="color:#e6db74">&#39;station_line&#39;</span>: <span style="color:#e6db74">&#39;7&#39;</span>,
-  <span style="color:#e6db74">&#39;stop_name_match&#39;</span>: <span style="color:#e6db74">&#39;34 St - 11 Av&#39;</span>,
-  <span style="color:#e6db74">&#39;line_fuzz_ratio&#39;</span>: <span style="color:#ae81ff">100</span>,
-  <span style="color:#e6db74">&#39;patched&#39;</span>: True}
+<span style="color:#75715e"># ... surpressed</span>
 }
 
   <span style="color:#75715e"># The location of these aren&#39;t in the dataset, so we&#39;ll ignore them. </span>
@@ -1364,17 +1122,7 @@ unknowns <span style="color:#f92672">=</span> [
   <span style="color:#e6db74">&#39;EXCHANGE PLACE&#39;</span>,
   <span style="color:#e6db74">&#39;PAVONIA/NEWPORT&#39;</span>,
   <span style="color:#e6db74">&#39;CITY / BUS&#39;</span>,
-  <span style="color:#e6db74">&#39;9TH STREET&#39;</span>, <span style="color:#75715e"># PATH line.  its coordinates are here: https://en.wikipedia.org/wiki/9th_Street_station_(PATH)</span>
-  <span style="color:#e6db74">&#39;14TH STREET&#39;</span>, <span style="color:#75715e"># Another path line. https://en.wikipedia.org/wiki/14th_Street_station_(PATH)</span>
-  <span style="color:#e6db74">&#39;TWENTY THIRD ST&#39;</span>, <span style="color:#75715e"># probably another path line https://en.wikipedia.org/wiki/23rd_Street_station_(PATH)</span>
-  <span style="color:#e6db74">&#39;THIRTY THIRD ST&#39;</span>, <span style="color:#75715e"># https://en.wikipedia.org/wiki/33rd_Street_station_(PATH)</span>
-  <span style="color:#e6db74">&#39;THIRTY ST&#39;</span>, <span style="color:#75715e"># DIVISION says PATH so is probably a path line. </span>
-  <span style="color:#e6db74">&#39;LACKAWANNA&#39;</span>, <span style="color:#75715e"># DIVISION says PATH so is probably a path line.</span>
-  <span style="color:#e6db74">&#39;NEWARK BM BW&#39;</span>, <span style="color:#75715e"># DIVISION says PATH so is probably a path line.</span>
-  <span style="color:#e6db74">&#39;NEWARK C&#39;</span>,  <span style="color:#75715e"># DIVISION says PATH so is probably a path line</span>
-  <span style="color:#e6db74">&#39;NEWARK HM HE&#39;</span>, <span style="color:#75715e"># DIVISION says PATH so is probably a path line</span>
-  <span style="color:#e6db74">&#39;PATH WTC 2&#39;</span>, <span style="color:#75715e"># definitely PATH line </span>
-  <span style="color:#e6db74">&#39;PATH NEW WTC&#39;</span>, <span style="color:#75715e"># PATH line</span>
+  <span style="color:#75715e"># ... surpressed</span>
 ]
 </code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Lets now filter the unknowns and fix the mismatches</span>
 results_filtered <span style="color:#f92672">=</span> [x <span style="color:#66d9ef">for</span> x <span style="color:#f92672">in</span> results <span style="color:#66d9ef">if</span> x[<span style="color:#e6db74">&#39;station&#39;</span>] <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> unknowns]
@@ -1400,9 +1148,11 @@ _ <span style="color:#f92672">=</span> [
      <span style="color:#e6db74">&#39;GTFS Longitude&#39;</span>: x[<span style="color:#e6db74">&#39;GTFS Longitude&#39;</span>][<span style="color:#ae81ff">0</span>] <span style="color:#66d9ef">if</span> type(x[<span style="color:#e6db74">&#39;GTFS Longitude&#39;</span>]) <span style="color:#f92672">is</span> list <span style="color:#66d9ef">else</span> x}
   ) <span style="color:#66d9ef">for</span> x <span style="color:#f92672">in</span> results_fixed]
 
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># I&#39;ll convert it into a df, then use &#39;station&#39; and &#39;station_line&#39; to join it on the turnstile dataset</span>
+
+<span style="color:#75715e"># I&#39;ll convert it into a df, then use &#39;station&#39; and &#39;station_line&#39; to join it on the turnstile dataset</span>
 mappingdf <span style="color:#f92672">=</span> pandas<span style="color:#f92672">.</span>DataFrame(results_fixed)<span style="color:#f92672">.</span>drop([<span style="color:#e6db74">&#39;name_match&#39;</span>, <span style="color:#e6db74">&#39;line_match&#39;</span>, <span style="color:#e6db74">&#39;stop_name_match&#39;</span>, <span style="color:#e6db74">&#39;line_fuzz_ratio&#39;</span>, <span style="color:#e6db74">&#39;patched&#39;</span>], axis<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)
 pandas<span style="color:#f92672">.</span>merge(df, mappingdf, left_on<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#39;STATION&#39;</span>, <span style="color:#e6db74">&#39;LINENAME&#39;</span>], right_on<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#39;station&#39;</span>, <span style="color:#e6db74">&#39;station_line&#39;</span>], how<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;left&#39;</span>)
+
 </code></pre></div><div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -1454,8 +1204,8 @@ pandas<span style="color:#f92672">.</span>merge(df, mappingdf, left_on<span styl
       <td>2521129</td>
       <td>59 ST</td>
       <td>NQR456W</td>
-      <td>40.7625</td>
-      <td>-73.968</td>
+      <td>40.762526</td>
+      <td>-73.967967</td>
     </tr>
     <tr>
       <th>1</th>
@@ -1472,8 +1222,8 @@ pandas<span style="color:#f92672">.</span>merge(df, mappingdf, left_on<span styl
       <td>2521130</td>
       <td>59 ST</td>
       <td>NQR456W</td>
-      <td>40.7625</td>
-      <td>-73.968</td>
+      <td>40.762526</td>
+      <td>-73.967967</td>
     </tr>
     <tr>
       <th>2</th>
@@ -1490,8 +1240,8 @@ pandas<span style="color:#f92672">.</span>merge(df, mappingdf, left_on<span styl
       <td>2521141</td>
       <td>59 ST</td>
       <td>NQR456W</td>
-      <td>40.7625</td>
-      <td>-73.968</td>
+      <td>40.762526</td>
+      <td>-73.967967</td>
     </tr>
     <tr>
       <th>3</th>
@@ -1508,8 +1258,8 @@ pandas<span style="color:#f92672">.</span>merge(df, mappingdf, left_on<span styl
       <td>2521163</td>
       <td>59 ST</td>
       <td>NQR456W</td>
-      <td>40.7625</td>
-      <td>-73.968</td>
+      <td>40.762526</td>
+      <td>-73.967967</td>
     </tr>
     <tr>
       <th>4</th>
@@ -1526,8 +1276,8 @@ pandas<span style="color:#f92672">.</span>merge(df, mappingdf, left_on<span styl
       <td>2521174</td>
       <td>59 ST</td>
       <td>NQR456W</td>
-      <td>40.7625</td>
-      <td>-73.968</td>
+      <td>40.762526</td>
+      <td>-73.967967</td>
     </tr>
     <tr>
       <th>...</th>
@@ -1548,7 +1298,7 @@ pandas<span style="color:#f92672">.</span>merge(df, mappingdf, left_on<span styl
       <td>...</td>
     </tr>
     <tr>
-      <th>206825</th>
+      <th>206657</th>
       <td>TRAM2</td>
       <td>R469</td>
       <td>00-05-01</td>
@@ -1566,7 +1316,7 @@ pandas<span style="color:#f92672">.</span>merge(df, mappingdf, left_on<span styl
       <td>NaN</td>
     </tr>
     <tr>
-      <th>206826</th>
+      <th>206658</th>
       <td>TRAM2</td>
       <td>R469</td>
       <td>00-05-01</td>
@@ -1584,7 +1334,7 @@ pandas<span style="color:#f92672">.</span>merge(df, mappingdf, left_on<span styl
       <td>NaN</td>
     </tr>
     <tr>
-      <th>206827</th>
+      <th>206659</th>
       <td>TRAM2</td>
       <td>R469</td>
       <td>00-05-01</td>
@@ -1602,7 +1352,7 @@ pandas<span style="color:#f92672">.</span>merge(df, mappingdf, left_on<span styl
       <td>NaN</td>
     </tr>
     <tr>
-      <th>206828</th>
+      <th>206660</th>
       <td>TRAM2</td>
       <td>R469</td>
       <td>00-05-01</td>
@@ -1620,7 +1370,7 @@ pandas<span style="color:#f92672">.</span>merge(df, mappingdf, left_on<span styl
       <td>NaN</td>
     </tr>
     <tr>
-      <th>206829</th>
+      <th>206661</th>
       <td>TRAM2</td>
       <td>R469</td>
       <td>00-05-01</td>
@@ -1639,10 +1389,9 @@ pandas<span style="color:#f92672">.</span>merge(df, mappingdf, left_on<span styl
     </tr>
   </tbody>
 </table>
-<p>206830 rows × 15 columns</p>
+<p>206662 rows × 15 columns</p>
 </div>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">mappingdf<span style="color:#f92672">.</span>to_csv(<span style="color:#e6db74">&#39;mta_station_geo_location_mapping.csv&#39;</span>, encoding<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;utf-8&#39;</span>, index<span style="color:#f92672">=</span>False)
-</code></pre></div><p>Done! We&rsquo;re all geotagged now!</p>
+<p>Done! We&rsquo;re all geotagged now!</p>
 <h4 id="imrovements-and-contributions-welcomed">Imrovements and Contributions Welcomed!</h4>
 <p>I&rsquo;ll have the code and dataset available <a href="https://github.com/ajpen/MTA-Station-Geo-Location-Mapping">here</a>. Feel free to open issues and PRs for fixes/improvements.</p>
 <p>That is all.</p>
