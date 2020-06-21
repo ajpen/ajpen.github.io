@@ -10,7 +10,7 @@ tags: [
 ]
 ---
 
-I wrote down the three things I wanted to work on today; one being a blog post on how I automated adding content to this blog that you're currently reading. I was on a high after assembling what I thought was a simple but useful infrastructure, and I wanted to share it with the world. But then I decided to check for novelty in an attempt to not be redundant. It was then I realized the same infrastructure was assembled and documented by many individuals, some of which included a template for it on github. 
+I wrote down the three things I wanted to work on today; one being a blog post on how I automated adding content to the blog that you're currently reading. I was on a high after assembling what I thought was a simple but useful infrastructure, and I wanted to share it with the world. But then I decided to check for novelty in an attempt to not be redundant. It was then I realized the same infrastructure was assembled and documented by many individuals, some of which included a template for it on github. 
 
 I'm not writing the post anymore.  
 
