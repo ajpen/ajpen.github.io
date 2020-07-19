@@ -1,7 +1,7 @@
 ---
 author: "Anfernee Jervis"
 title: "The \"Two Laptops\" Problem"
-date: "2020-06-10"
+date: "2020-07-19"
 tags: [
     "sync",
     "Linux",
