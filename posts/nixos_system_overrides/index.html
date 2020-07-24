@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="format-detection" content="telephone=no"/>
 
-    <title>Tags | Anfernee Jervis</title>
+    <title>Nixos: Overriding System Packages | Anfernee Jervis</title>
     
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -28,8 +28,6 @@
     
     
  
-    
-    <link rel="alternate" type="application/rss+xml" href="https://ajpen.github.io/tags/index.xml" title="Anfernee Jervis" />
     
 <script type="application/javascript">
 var doNotTrack = false;
@@ -171,38 +169,62 @@ if (!doNotTrack) {
         <div id="content" class="content-container">
         
 
-<h1>Tags</h1>
-<ul>
+<h1 class="post-title">Nixos: Overriding System Packages</h1>
     
-        <li><a href="https://ajpen.github.io/tags/coding/">coding</a> 1</li>
+    <time>July 19, 2020</time>
     
-        <li><a href="https://ajpen.github.io/tags/data-mining/">Data Mining</a> 1</li>
-    
-        <li><a href="https://ajpen.github.io/tags/datasets/">Datasets</a> 1</li>
-    
-        <li><a href="https://ajpen.github.io/tags/geotagging/">Geotagging</a> 1</li>
-    
-        <li><a href="https://ajpen.github.io/tags/information/">information</a> 1</li>
-    
-        <li><a href="https://ajpen.github.io/tags/linux/">Linux</a> 2</li>
-    
-        <li><a href="https://ajpen.github.io/tags/mta/">MTA</a> 1</li>
-    
-        <li><a href="https://ajpen.github.io/tags/mta-turnstile-dataset-series/">MTA Turnstile Dataset Series</a> 1</li>
-    
-        <li><a href="https://ajpen.github.io/tags/observation/">observation</a> 1</li>
-    
-        <li><a href="https://ajpen.github.io/tags/pandas/">Pandas</a> 1</li>
-    
-        <li><a href="https://ajpen.github.io/tags/search-engine/">search engine</a> 1</li>
-    
-        <li><a href="https://ajpen.github.io/tags/sync/">sync</a> 2</li>
-    
-        <li><a href="https://ajpen.github.io/tags/web-scraping/">Web Scraping</a> 1</li>
-    
-</ul>
+    <div>
+        <p>
+        <p><em>This one&rsquo;s short.</em></p>
+<p>Is there a system package in Nixos whose source you wish to replace with your own? Maybe you have your own fork of dwm, like I did. Hopefully you come across this on your first search. I&rsquo;ll save you some hours.</p>
+<p>First override the package config in nixpkgs to change the src:</p>
+<pre><code>nixpkgs.config.packageOverrides = pkgs: {
+  dwm = pkgs.dwm.overrideAttrs (_: {
+    src = {
+      url = &quot;path/to/your/src&quot;;
+    }
+  });
+}
+</code></pre><p>if its on Github use <code>builtins.fetchGit</code> on <code>src</code>:</p>
+<pre><code>  src = builtins.fetchGit {
+	url = &quot;https://github.com/ajpen/dwm&quot;;
+	ref = &quot;master&quot;;
+  };
 
-<div class="page-footer"></div>
+</code></pre><p>Make sure to add the package (in this case dwm) to your list of system packages:</p>
+<pre><code>  environment.systemPackages = with pkgs; [
+    ... dwm ...
+  ]
+</code></pre><p>Nixos will install the package (dwm in this case) as a system package using the src specified. Now you can use your package (dwm in this example) as typical. If its a dependency to something else, this step could probably be skipped unless you have to explicitly indicate that dependency. In my case, I needed to tell xserver to start the dwm on login:</p>
+<pre><code>  services.xserver.desktopManager.session =
+	[{ 
+	  name = &quot;dwm&quot;;
+	  start = ''
+	    /run/current-system/sw/bin/dwm &amp;
+	    waitPID=$!
+	  '';
+	}
+  ];
+
+</code></pre><p>That is all.</p>
+
+        </p>
+    </div>
+    
+
+    
+
+    <div class="page-footer">
+        
+        <hr class="footer-divider">
+        
+            <a class="tag" href="/tags/sync">#sync</a>
+        
+            <a class="tag" href="/tags/linux">#Linux</a>
+        
+      
+    </div>
+
 
         
 
