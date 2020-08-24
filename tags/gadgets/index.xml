@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>gadgets on Anfernee Jervis</title>
+    <link>https://ajpen.github.io/tags/gadgets/</link>
+    <description>Recent content in gadgets on Anfernee Jervis</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 24 Aug 2020 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://ajpen.github.io/tags/gadgets/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>My Outside Companion</title>
+      <link>https://ajpen.github.io/posts/raspberrypi/</link>
+      <pubDate>Mon, 24 Aug 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://ajpen.github.io/posts/raspberrypi/</guid>
+      <description>I have a work laptop now, so there&amp;rsquo;s a possibility that I&amp;rsquo;ll have to work and do non-work computational things in the same day.</description>
+    </item>
+    
+  </channel>
+</rss>
