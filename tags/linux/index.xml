@@ -6,10 +6,19 @@
     <description>Recent content in Linux on Anfernee Jervis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 19 Jul 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 09 Oct 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://ajpen.github.io/tags/linux/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>The &#34;Two Laptops&#34; Problem Cont&#39;d</title>
+      <link>https://ajpen.github.io/posts/the_laptops_contd/</link>
+      <pubDate>Fri, 09 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://ajpen.github.io/posts/the_laptops_contd/</guid>
+      <description>It&amp;rsquo;s October. Still have two personal laptops. Both running nixos; well, both were running nixos.</description>
+    </item>
     
     <item>
       <title>Nixos: Overriding System Packages</title>
