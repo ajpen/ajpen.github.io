@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="format-detection" content="telephone=no"/>
 
-    <title> | Anfernee Jervis</title>
+    <title>Error Handling | Anfernee Jervis</title>
     
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -169,87 +169,44 @@ if (!doNotTrack) {
         <div id="content" class="content-container">
         
 
-  <h1>
-    Archives
-  </h1>
-  <div>
-     
-      
-      
-          <h3>2020</h3> 
+<h1 class="post-title">Error Handling</h1>
+    
+    <time>December 1, 2020</time>
+    
+    <div>
+        <p>
+        <p><a href="https://www.fpcomplete.com/blog/error-handling-is-hard/">I saw a post on error handling earlier this morning.</a> I skimmed the article, so bear that in mind. This isn&rsquo;t however directed at the article though. I just wanted to share my thoughts on error handling.</p>
+<p>I agree that error handling is hard. I also think that error handling isn&rsquo;t a feature of any particular language
+implementation, but rather an element of the application design itself.</p>
+<p>Applications that have even the slightest bit of complexity usually have various levels of failures.
+When designing applications, one should think carefully about where things can go wrong and the potential course
+of action for each situation.</p>
+<p>Sometimes a crashing application is bad, and sometimes its reasonable. Sometimes you&rsquo;d want a clean error message
+while other times you wish you dumped the stack trace.</p>
+<p>What I personally think matters less is how its explicitly done through code. Whether you throw exceptions on errors
+or prefer to have functions return error values, should be thought about briefly, agreed upon,
+documented in a style guide and then no longer discussed unless absolutely necessary. The effort of error checking
+should be more in the design of the application and less in the code itself.</p>
+<p>That is all.</p>
 
-          <ul class="archives-list"> 
-            
-              
-             
-                  <li class="archives-list-item">
-                    <span class="archives-list-item-date">Dec 1</span>
-                    <span>
-                      <a href="/posts/error-handling/">Error Handling</a>
-                    </span>
-                  </li>
-              
-             
-                  <li class="archives-list-item">
-                    <span class="archives-list-item-date">Oct 9</span>
-                    <span>
-                      <a href="/posts/the_laptops_contd/">The &#34;Two Laptops&#34; Problem Cont&#39;d</a>
-                    </span>
-                  </li>
-              
-             
-                  <li class="archives-list-item">
-                    <span class="archives-list-item-date">Aug 24</span>
-                    <span>
-                      <a href="/posts/raspberrypi/">My Outside Companion</a>
-                    </span>
-                  </li>
-              
-             
-                  <li class="archives-list-item">
-                    <span class="archives-list-item-date">Aug 13</span>
-                    <span>
-                      <a href="/posts/code-is/">Code is Tedious</a>
-                    </span>
-                  </li>
-              
-             
-                  <li class="archives-list-item">
-                    <span class="archives-list-item-date">Jul 19</span>
-                    <span>
-                      <a href="/posts/the_laptops/">The &#34;Two Laptops&#34; Problem</a>
-                    </span>
-                  </li>
-              
-             
-                  <li class="archives-list-item">
-                    <span class="archives-list-item-date">Jul 19</span>
-                    <span>
-                      <a href="/posts/nixos_system_overrides/">Nixos: Overriding System Packages</a>
-                    </span>
-                  </li>
-              
-             
-                  <li class="archives-list-item">
-                    <span class="archives-list-item-date">Jun 16</span>
-                    <span>
-                      <a href="/posts/mta-turnstile-dataset-geotagging/">&#39;Sane&#39;itizing MTA&#39;s Turnstile Datasets: Geotagging</a>
-                    </span>
-                  </li>
-              
-             
-                  <li class="archives-list-item">
-                    <span class="archives-list-item-date">Jun 10</span>
-                    <span>
-                      <a href="/posts/scarcity-in-an-ocean-of-knowledge/">Scarcity in an Ocean of Knowledge</a>
-                    </span>
-                  </li>
-              
-          </ul>
-      
-  </div>
+        </p>
+    </div>
+    
 
-  <div class="page-footer"></div>
+    
+
+    <div class="page-footer">
+        
+        <hr class="footer-divider">
+        
+            <a class="tag" href="/tags/programming">#Programming</a>
+        
+            <a class="tag" href="/tags/exceptions">#Exceptions</a>
+        
+            <a class="tag" href="/tags/error-handling">#Error Handling</a>
+        
+      
+    </div>
 
 
         

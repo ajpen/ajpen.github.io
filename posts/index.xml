@@ -6,10 +6,19 @@
     <description>Recent content in Posts on Anfernee Jervis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 09 Oct 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 01 Dec 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://ajpen.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Error Handling</title>
+      <link>https://ajpen.github.io/posts/error-handling/</link>
+      <pubDate>Tue, 01 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://ajpen.github.io/posts/error-handling/</guid>
+      <description>I saw a post on error handling earlier this morning. I skimmed the article, so bear that in mind.</description>
+    </item>
     
     <item>
       <title>The &#34;Two Laptops&#34; Problem Cont&#39;d</title>
