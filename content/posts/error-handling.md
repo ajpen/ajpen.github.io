@@ -23,7 +23,7 @@ while other times you wish you dumped the stack trace.
 
 What I personally think matters less is how its explicitly done through code. Whether you throw exceptions on errors
 or prefer to have functions return error values, should be thought about briefly, agreed upon, 
-documented in a style guide and then no longer discussed unless absolutely necessary. The effort of error checking 
+documented in a style guide and then no longer discussed unless absolutely necessary. The effort of error handling 
 should be more in the design of the application and less in the code itself.  
   
 That is all.
