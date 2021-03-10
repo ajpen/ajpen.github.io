@@ -6,10 +6,46 @@
     <description>Recent content in Tags on Anfernee Jervis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 01 Dec 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 09 Mar 2021 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://ajpen.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>automation</title>
+      <link>https://ajpen.github.io/tags/automation/</link>
+      <pubDate>Tue, 09 Mar 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://ajpen.github.io/tags/automation/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>calibre</title>
+      <link>https://ajpen.github.io/tags/calibre/</link>
+      <pubDate>Tue, 09 Mar 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://ajpen.github.io/tags/calibre/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>coding</title>
+      <link>https://ajpen.github.io/tags/coding/</link>
+      <pubDate>Tue, 09 Mar 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://ajpen.github.io/tags/coding/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>raspberrypi</title>
+      <link>https://ajpen.github.io/tags/raspberrypi/</link>
+      <pubDate>Tue, 09 Mar 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://ajpen.github.io/tags/raspberrypi/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>Error Handling</title>
@@ -57,15 +93,6 @@
     </item>
     
     <item>
-      <title>coding</title>
-      <link>https://ajpen.github.io/tags/coding/</link>
-      <pubDate>Mon, 24 Aug 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://ajpen.github.io/tags/coding/</guid>
-      <description></description>
-    </item>
-    
-    <item>
       <title>gadgets</title>
       <link>https://ajpen.github.io/tags/gadgets/</link>
       <pubDate>Mon, 24 Aug 2020 00:00:00 +0000</pubDate>
@@ -80,15 +107,6 @@
       <pubDate>Mon, 24 Aug 2020 00:00:00 +0000</pubDate>
       
       <guid>https://ajpen.github.io/tags/iot/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>raspberrypi</title>
-      <link>https://ajpen.github.io/tags/raspberrypi/</link>
-      <pubDate>Mon, 24 Aug 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://ajpen.github.io/tags/raspberrypi/</guid>
       <description></description>
     </item>
     
