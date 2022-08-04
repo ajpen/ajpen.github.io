@@ -1,0 +1,19 @@
+# First lets make in env to ensure the script stays portable
+virtualenv --python /opt/homebrew/bin/python3 .venv
+
+
+# Convert notebooks to markdown
+.venv/bin/python -m pip install nbconvert
+
+for file in content/notebooks/*.ipynb; do                                                                                                            
+	python -m nbconvert $file --to markdown --output-dir content/posts/ || continue                                                                  
+ done
+
+# Generate site to docs/ Assumes hugo is already installed
+hugo -d docs
+
+# Clean up env
+rm -rf .venv
+
+# add docs to commit
+git add docs
