@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>MTA Turnstile Dataset Series on Anfernee Jervis</title>
+    <link>https://ajpen.github.io/tags/mta-turnstile-dataset-series/</link>
+    <description>Recent content in MTA Turnstile Dataset Series on Anfernee Jervis</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 16 Jun 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://ajpen.github.io/tags/mta-turnstile-dataset-series/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>&#39;Sane&#39;itizing MTA&#39;s Turnstile Datasets: Geotagging</title>
+      <link>https://ajpen.github.io/posts/mta-turnstile-dataset-geotagging/</link>
+      <pubDate>Tue, 16 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://ajpen.github.io/posts/mta-turnstile-dataset-geotagging/</guid>
+      <description>Update: Looks like others have geotagged the turnstile dataset too.</description>
+    </item>
+    
+  </channel>
+</rss>

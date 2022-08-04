@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Exceptions on Anfernee Jervis</title>
+    <link>https://ajpen.github.io/tags/exceptions/</link>
+    <description>Recent content in Exceptions on Anfernee Jervis</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 01 Dec 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://ajpen.github.io/tags/exceptions/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Error Handling</title>
+      <link>https://ajpen.github.io/posts/error-handling/</link>
+      <pubDate>Tue, 01 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://ajpen.github.io/posts/error-handling/</guid>
+      <description>I saw a post on error handling earlier this morning. I skimmed the article, so bear that in mind.</description>
+    </item>
+    
+  </channel>
+</rss>

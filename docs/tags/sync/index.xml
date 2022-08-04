@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>sync on Anfernee Jervis</title>
+    <link>https://ajpen.github.io/tags/sync/</link>
+    <description>Recent content in sync on Anfernee Jervis</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 31 Oct 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://ajpen.github.io/tags/sync/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>The &#34;Two Laptops&#34; Problem Solved</title>
+      <link>https://ajpen.github.io/posts/the_laptops_3/</link>
+      <pubDate>Sun, 31 Oct 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://ajpen.github.io/posts/the_laptops_3/</guid>
+      <description>I think I&amp;rsquo;ve solved the two laptops problem. I realized that its not really a problem worth solving.</description>
+    </item>
+    
+    <item>
+      <title>The &#34;Two Laptops&#34; Problem Cont&#39;d</title>
+      <link>https://ajpen.github.io/posts/the_laptops_contd/</link>
+      <pubDate>Fri, 09 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://ajpen.github.io/posts/the_laptops_contd/</guid>
+      <description>It&amp;rsquo;s October. Still have two personal laptops. Both running nixos; well, both were running nixos.</description>
+    </item>
+    
+    <item>
+      <title>Nixos: Overriding System Packages</title>
+      <link>https://ajpen.github.io/posts/nixos_system_overrides/</link>
+      <pubDate>Sun, 19 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://ajpen.github.io/posts/nixos_system_overrides/</guid>
+      <description>This one&amp;rsquo;s short.
+Is there a system package in Nixos whose source you wish to replace with your own?</description>
+    </item>
+    
+    <item>
+      <title>The &#34;Two Laptops&#34; Problem</title>
+      <link>https://ajpen.github.io/posts/the_laptops/</link>
+      <pubDate>Sun, 19 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://ajpen.github.io/posts/the_laptops/</guid>
+      <description>About three years ago, I bought a decked out XPS 13 to replace a five year old Thinkpad E535 I had.</description>
+    </item>
+    
+  </channel>
+</rss>
