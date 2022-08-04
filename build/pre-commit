@@ -6,7 +6,7 @@ virtualenv --python /opt/homebrew/bin/python3 .venv
 .venv/bin/python -m pip install nbconvert
 
 for file in content/notebooks/*.ipynb; do                                                                                                            
-	python -m nbconvert $file --to markdown --output-dir content/posts/ || continue                                                                  
+	.venv/bin/python -m nbconvert $file --to markdown --output-dir content/posts/ || continue                                                                  
  done
 
 # Generate site to docs/ Assumes hugo is already installed
