@@ -1,0 +1,16 @@
+{
+  "id": "./",
+  "name": "Penny — Private Budget",
+  "short_name": "Penny",
+  "description": "Your everyday spending, a little clearer. Private and on your device.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f8f9fc",
+  "theme_color": "#f8f9fc",
+  "icons": [
+    { "src": "./public/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./public/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [{ "name": "Add a transaction", "short_name": "Add expense", "url": "./?add=1", "icons": [{ "src": "./public/icons/icon-192.png", "sizes": "192x192" }] }]
+}
