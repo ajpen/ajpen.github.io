@@ -32,6 +32,11 @@ export const saveTransaction = item => operate('transactions', 'readwrite', stor
 export const deleteTransaction = id => operate('transactions', 'readwrite', store => store.delete(id));
 export const getSettings = () => operate('settings', 'readonly', store => store.get('preferences'));
 export const saveSettings = value => operate('settings', 'readwrite', store => store.put({ ...value, key: 'preferences' }));
+export async function insertURLTransaction(entry) {
+  // add() never overwrites a record; operate() resolves after the durable commit.
+  await operate('transactions', 'readwrite', store => store.add(entry.transaction));
+  return { status: 'saved', transaction: entry.transaction };
+}
 export function mergeTransactions(items) {
   // One read/write transaction serializes deduplication against other open tabs.
   return new Promise((resolve, reject) => {

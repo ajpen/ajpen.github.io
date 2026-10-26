@@ -7,7 +7,26 @@ export const CATEGORIES = [
   { id: 'health', name: 'Health', color: '#8bbad0', bg: '#eaf4f9', icon: 'heart' },
   { id: 'misc', name: 'Miscellaneous', color: '#acb4c3', bg: '#eef0f4', icon: 'grid' },
 ];
-export const categoryFor = id => CATEGORIES.find(c => c.id === id) || CATEGORIES.at(-1);
+export function normalizeCategory(value = '') {
+  if (typeof value !== 'string') throw new Error('Category must be text.');
+  const name = value.trim().replace(/\s+/g, ' ');
+  if (!name) return 'misc';
+  if (name.length > 40) throw new Error('Category must be 40 characters or fewer.');
+  return CATEGORIES.find(c => c.id === name.toLowerCase() || c.name.toLowerCase() === name.toLowerCase())?.id || name;
+}
+export const categoryKey = value => normalizeCategory(value).toLowerCase();
+export function categoryFor(value) {
+  const id = normalizeCategory(value);
+  return CATEGORIES.find(c => c.id === id) || { id, name: id, color: '#8c7ae6', bg: '#efebfc', icon: 'grid' };
+}
+export function categoriesFor(transactions) {
+  const categories = new Map(CATEGORIES.map(c => [c.id, c]));
+  for (const item of transactions) {
+    const key = categoryKey(item.category);
+    if (!categories.has(key)) categories.set(key, categoryFor(item.category));
+  }
+  return [...categories.values()];
+}
 export const localDay = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 export function localInput(date = new Date()) { return `${localDay(date)}T${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`; }
 export const addDays = (date, days) => new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
@@ -116,7 +135,11 @@ export function importCSV(text, currency = 'USD') {
     const calendar = rawDate ? new Date(`${rawDate.slice(0, 10)}T12:00:00`) : date;
     if (Number.isNaN(date.getTime()) || (rawDate && localDay(calendar) !== rawDate.slice(0, 10))) throw new Error(`Row ${i + 2}: invalid date.`);
     if (data.currency && data.currency !== currency) throw new Error(`Row ${i + 2}: currency is ${data.currency}; your app uses ${currency}. Currency conversion is not supported.`);
-    const category = CATEGORIES.find(c => c.id === data.category?.trim().toLowerCase() || c.name.toLowerCase() === data.category?.trim().toLowerCase())?.id || 'misc';
+    let rawCategory = data.category || '';
+    if (data.penny_format === '1' && rawCategory.startsWith("'")) rawCategory = rawCategory.slice(1);
+    let category;
+    try { category = normalizeCategory(rawCategory); }
+    catch (error) { throw new Error(`Row ${i + 2}: ${error.message}`); }
     return { id: data.id?.trim() || crypto.randomUUID(), name, amount, date: date.toISOString(), category };
   });
 }

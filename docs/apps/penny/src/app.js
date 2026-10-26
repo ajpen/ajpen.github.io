@@ -1,5 +1,6 @@
-import { CATEGORIES, categoryFor, localDay, localInput, addDays, amountToCents, periodRange, previousRange, daysInRange, inRange, totalCents, trendBuckets, exportCSV, importCSV } from './core.js';
+import { categoriesFor, categoryFor, categoryKey, normalizeCategory, localDay, localInput, addDays, amountToCents, periodRange, previousRange, daysInRange, inRange, totalCents, trendBuckets, exportCSV, importCSV } from './core.js';
 import * as db from './storage.js';
+import { installURLTransactions } from './url-entry.js';
 
 const paths = {
   plus: '<path d="M12 5v14M5 12h14"/>',
@@ -31,10 +32,11 @@ const app = document.querySelector('#app');
 const dialogs = document.querySelector('#dialogs');
 let transactions = [];
 let settings = { currency: 'USD', reminderDays: 14, lastExport: null, reminderSnooze: null, quickLaunch: false, created: new Date().toISOString() };
-let state = { page: 'overview', period: 'monthly', anchor: new Date(), custom: null, search: '', category: 'all', demo: false };
+let state = { page: 'overview', period: 'monthly', anchor: new Date(), custom: null, search: '', category: '', demo: false };
 let demoTransactions = [];
 let persistent = false;
 let toastTimer;
+let urlNotice = null;
 let channel = 'BroadcastChannel' in window ? new BroadcastChannel('penny-changes') : null;
 const money = cents => new Intl.NumberFormat('en-US', { style: 'currency', currency: settings.currency }).format(cents / 100);
 const records = () => state.demo ? demoTransactions : transactions;
@@ -54,6 +56,7 @@ function render() {
   <div class="main-shell"><header class="topbar"><div class="breadcrumb">My workspace <span>/</span> <strong>${state.page[0].toUpperCase() + state.page.slice(1)}</strong></div><span class="device-label">${icon('shield')} On-device storage</span><button class="avatar" data-page="settings" aria-label="Open settings">P</button></header><main id="main"><section class="page-heading"><div><div class="eyebrow">${state.page === 'overview' ? 'A PENNY FOR YOUR PEACE OF MIND' : 'A LITTLE MORE CLARITY'}</div><h1>${titles[state.page][0]}</h1><p>${titles[state.page][1]}</p></div><button class="button primary desktop-add" data-action="add">${icon('plus')} Add transaction</button></section>
   ${state.demo ? `<div class="demo-banner">${icon('spark')}<span>You’re exploring sample data. Your own records are separate.</span><button data-action="demo-exit">Exit preview ${icon('close')}</button></div>` : ''}
   ${backupDue() ? `<div class="backup-banner">${icon('download')}<span><strong>A little backup goes a long way.</strong> It’s time to export your transactions.</span><button data-action="export">Export CSV</button><button class="icon-button" data-action="snooze" aria-label="Remind me tomorrow">${icon('close')}</button></div>` : ''}
+  ${urlNotice ? `<div class="url-entry-notice ${urlNotice.error ? 'error' : ''}" role="${urlNotice.error ? 'alert' : 'status'}">${icon(urlNotice.error ? 'close' : 'check')}<span>${escape(urlNotice.message)}</span><button class="icon-button" data-action="dismiss-url-notice" aria-label="Dismiss URL entry result">${icon('close')}</button></div>` : ''}
   ${state.page !== 'settings' ? periodControls() : ''}
   ${state.page === 'overview' ? overview() : state.page === 'transactions' ? transactionPage() : state.page === 'insights' ? insights() : settingsPage()}
   <footer class="main-footer"><span>${icon('shield')} A private space for your everyday spending.</span><span>Made for a little more clarity <span class="footer-spark">✧</span></span></footer></main></div>
@@ -72,7 +75,7 @@ function summaryCards() {
   const change = prior ? Math.round((total - prior) / prior * 100) : null;
   const activeDays = Math.max(1, Math.min(daysInRange(range()), daysInRange({ start: range().start, end: addDays(new Date(), 1) })));
   const average = total / (range().start > new Date() ? daysInRange(range()) : activeDays);
-  const groups = CATEGORIES.map(c => ({ ...c, total: totalCents(items.filter(t => t.category === c.id)) })).sort((a, b) => b.total - a.total);
+  const groups = categoriesFor(records()).map(c => ({ ...c, total: totalCents(items.filter(t => categoryKey(t.category) === categoryKey(c.id))) })).sort((a, b) => b.total - a.total);
   return `<section class="summary-grid" aria-label="Spending summary"><article class="summary-card total-card"><div class="metric-label">Total spent <span class="metric-icon">${icon('wallet')}</span></div><div class="metric-value">${money(total)}</div><div class="metric-foot">${change !== null ? `<span class="change ${change > 0 ? 'up' : ''}">${icon(change > 0 ? 'arrow' : 'down')} ${Math.abs(change)}%</span><span>vs. previous period</span>` : `<span class="neutral-pill">${icon('clock')} ${items.length ? 'A fresh perspective' : 'A fresh start'}</span><span>${items.length ? 'Your spending so far' : 'Your story starts here'}</span>`}</div></article>
   <article class="summary-card"><div class="metric-label">Daily average <span class="metric-icon soft">${icon('chart')}</span></div><div class="metric-value">${money(average)}</div><div class="metric-foot"><span>Across ${range().start <= new Date() && range().end > new Date() ? 'elapsed days this period' : 'the selected period'}</span></div></article>
   <article class="summary-card"><div class="metric-label">Top category <span class="metric-icon soft">${icon(groups[0].total ? groups[0].icon : 'grid')}</span></div><div class="metric-value category-value">${groups[0].total ? groups[0].name : 'Room to discover'}</div><div class="metric-foot">${groups[0].total ? `<i class="color-dot" style="--dot:${groups[0].color}"></i><strong>${money(groups[0].total)}</strong><span>· ${Math.round(groups[0].total / total * 100)}% of spending</span>` : '<span>Add a transaction to find your patterns</span>'}</div></article></section>`;
@@ -86,23 +89,23 @@ function trendCard() {
 }
 function categoryCard() {
   const items = currentRecords(), total = totalCents(items);
-  const groups = CATEGORIES.map(c => ({ ...c, total: totalCents(items.filter(t => t.category === c.id)) })).filter(c => c.total).sort((a, b) => b.total - a.total);
+  const groups = categoriesFor(records()).map(c => ({ ...c, total: totalCents(items.filter(t => categoryKey(t.category) === categoryKey(c.id))) })).filter(c => c.total).sort((a, b) => b.total - a.total);
   let offset = 0;
   const stops = groups.map(c => { const start = offset; offset += c.total / total * 100; return `${c.color} ${start}% ${offset}%`; });
-  return `<article class="panel category-panel"><div class="panel-heading"><div><h2>Where it goes</h2><p>The little pieces of your spending.</p></div>${icon('grid', 'muted')}</div><div class="donut-area"><div class="donut" style="--ring:${total ? `conic-gradient(${stops.join(',')})` : '#eeecf5'}" role="img" aria-label="Spending by category"><div><span>${total ? 'Total spent' : 'All yours'}</span><strong>${money(total)}</strong><small>${groups.length} ${groups.length === 1 ? 'category' : 'categories'}</small></div></div></div><div class="category-legend">${groups.length ? groups.map(c => `<div><span><i class="color-dot" style="--dot:${c.color}"></i>${c.name}</span><strong>${money(c.total)}</strong><small>${Math.round(c.total / total * 100)}%</small></div>`).join('') : `<p class="legend-empty">From your morning coffee to the big things.<br>See where every penny goes.</p>`}</div></article>`;
+  return `<article class="panel category-panel"><div class="panel-heading"><div><h2>Where it goes</h2><p>The little pieces of your spending.</p></div>${icon('grid', 'muted')}</div><div class="donut-area"><div class="donut" style="--ring:${total ? `conic-gradient(${stops.join(',')})` : '#eeecf5'}" role="img" aria-label="Spending by category"><div><span>${total ? 'Total spent' : 'All yours'}</span><strong>${money(total)}</strong><small>${groups.length} ${groups.length === 1 ? 'category' : 'categories'}</small></div></div></div><div class="category-legend">${groups.length ? groups.map(c => `<div><span><i class="color-dot" style="--dot:${c.color}"></i>${escape(c.name)}</span><strong>${money(c.total)}</strong><small>${Math.round(c.total / total * 100)}%</small></div>`).join('') : `<p class="legend-empty">From your morning coffee to the big things.<br>See where every penny goes.</p>`}</div></article>`;
 }
 function rowMarkup(t) {
   const c = categoryFor(t.category), date = new Date(t.date);
-  return `<button class="transaction-row" data-edit="${escape(t.id)}" aria-label="Edit ${escape(t.name)}, ${escape(money(t.amount))}"><span class="transaction-icon" style="--cat-bg:${c.bg};--cat-color:${c.color}">${icon(c.icon)}</span><span class="transaction-name"><strong>${escape(t.name)}</strong><small><span class="desktop-time">${date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span><span class="mobile-category">${shortDate(date)} · ${c.name}</span></small></span><span class="category-badge" style="--cat-bg:${c.bg};--cat-color:${c.color}">${c.name}</span><span class="transaction-date">${shortDate(date)}<small>${date.getFullYear()}</small></span><strong class="transaction-amount">−${money(t.amount)}</strong><span class="row-chevron">${icon('right')}</span></button>`;
+  return `<button class="transaction-row" data-edit="${escape(t.id)}" aria-label="Edit ${escape(t.name)}, ${escape(money(t.amount))}"><span class="transaction-icon" style="--cat-bg:${c.bg};--cat-color:${c.color}">${icon(c.icon)}</span><span class="transaction-name"><strong>${escape(t.name)}</strong><small><span class="desktop-time">${date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span><span class="mobile-category">${shortDate(date)} · ${escape(c.name)}</span></small></span><span class="category-badge" style="--cat-bg:${c.bg};--cat-color:${c.color}">${escape(c.name)}</span><span class="transaction-date">${shortDate(date)}<small>${date.getFullYear()}</small></span><strong class="transaction-amount">−${money(t.amount)}</strong><span class="row-chevron">${icon('right')}</span></button>`;
 }
-function filteredTransactions() { return currentRecords().filter(t => t.name.toLowerCase().includes(state.search.toLowerCase()) && (state.category === 'all' || t.category === state.category)); }
+function filteredTransactions() { return currentRecords().filter(t => t.name.toLowerCase().includes(state.search.toLowerCase()) && (state.category === '' || categoryKey(t.category) === categoryKey(state.category))); }
 function emptyTransactions() {
-  const filtered = state.search || state.category !== 'all';
+  const filtered = state.search || state.category !== '';
   return `<div class="empty-state"><span class="empty-art">${icon(filtered ? 'search' : 'wallet')}<span>✧</span></span><h3>${filtered ? 'No matching transactions' : 'Make room for a little clarity.'}</h3><p>${filtered ? 'Try a different name or category.' : 'Your coffee, your groceries, your everyday.<br>Add your first expense and start seeing the bigger picture.'}</p><button class="button ${filtered ? 'secondary' : 'primary'}" data-action="${filtered ? 'reset-search' : 'add'}">${icon(filtered ? 'search' : 'plus')}${filtered ? 'Clear filters' : 'Add your first transaction'}</button>${!filtered && !records().length ? '<button class="text-button sample-button" data-action="demo">Or take a peek with sample data '+icon('right')+'</button>' : ''}</div>`;
 }
 function transactionCard(recent = false) {
   const items = recent ? currentRecords().slice(0, 5) : filteredTransactions();
-  return `<section class="panel transactions-panel"><div class="panel-heading"><div><h2>${recent ? 'Recent transactions' : 'Your transactions'} <span class="count-pill">${recent ? currentRecords().length : items.length}</span></h2><p>${recent ? 'A little look at your latest spending.' : 'Select a transaction to edit its details.'}</p></div>${recent ? `<button class="text-button" data-page="transactions">View all ${icon('right')}</button>` : `<button class="text-button" data-action="export">${icon('download')} Export</button>`}</div>${!recent ? `<div class="filter-row"><label class="search-field">${icon('search')}<input id="search" type="search" placeholder="Search transactions…" aria-label="Search transactions" value="${escape(state.search)}"></label><select id="category-filter" aria-label="Filter by category"><option value="all">All categories</option>${CATEGORIES.map(c => `<option value="${c.id}" ${state.category === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}</select></div>` : ''}<div id="transaction-results">${items.length ? `<div class="table-heading"><span>TRANSACTION</span><span>CATEGORY</span><span>DATE</span><span>AMOUNT</span></div><div class="transaction-list">${items.map(rowMarkup).join('')}</div>` : emptyTransactions()}</div>${items.length ? `<div class="table-footer"><span>${recent ? 'Your latest' : 'Showing'} ${items.length} transaction${items.length === 1 ? '' : 's'}</span><span>${recent ? 'Every penny accounted for.' : 'Total: ' + money(totalCents(items))}</span></div>` : ''}</section>`;
+  return `<section class="panel transactions-panel"><div class="panel-heading"><div><h2>${recent ? 'Recent transactions' : 'Your transactions'} <span class="count-pill">${recent ? currentRecords().length : items.length}</span></h2><p>${recent ? 'A little look at your latest spending.' : 'Select a transaction to edit its details.'}</p></div>${recent ? `<button class="text-button" data-page="transactions">View all ${icon('right')}</button>` : `<button class="text-button" data-action="export">${icon('download')} Export</button>`}</div>${!recent ? `<div class="filter-row"><label class="search-field">${icon('search')}<input id="search" type="search" placeholder="Search transactions…" aria-label="Search transactions" value="${escape(state.search)}"></label><select id="category-filter" aria-label="Filter by category"><option value="">All categories</option>${categoriesFor(records()).map(c => `<option value="${escape(c.id)}" ${state.category && categoryKey(state.category) === categoryKey(c.id) ? 'selected' : ''}>${escape(c.name)}</option>`).join('')}</select></div>` : ''}<div id="transaction-results">${items.length ? `<div class="table-heading"><span>TRANSACTION</span><span>CATEGORY</span><span>DATE</span><span>AMOUNT</span></div><div class="transaction-list">${items.map(rowMarkup).join('')}</div>` : emptyTransactions()}</div>${items.length ? `<div class="table-footer"><span>${recent ? 'Your latest' : 'Showing'} ${items.length} transaction${items.length === 1 ? '' : 's'}</span><span>${recent ? 'Every penny accounted for.' : 'Total: ' + money(totalCents(items))}</span></div>` : ''}</section>`;
 }
 function transactionPage() { return transactionCard(); }
 function insights() {
@@ -129,7 +132,7 @@ function closeDialog() { dialogs.querySelector('dialog')?.close(); }
 function openTransaction(id) {
   if (state.demo) { toast('Exit the sample preview to add or edit your own transactions.'); return; }
   const item = transactions.find(t => t.id === id);
-  showDialog(`<div class="modal-heading"><div><span class="eyebrow">EVERY PENNY HAS A PLACE</span><h2>${item ? 'A little adjustment.' : 'What did you spend?'}</h2><p>${item ? 'Keep the details just right.' : 'The everyday things count, too.'}</p></div><button class="icon-button" data-action="close" aria-label="Close form">${icon('close')}</button></div><form id="transaction-form" data-id="${escape(item?.id || '')}"><label class="amount-label" for="amount">Amount <span>${settings.currency}</span></label><div class="amount-input"><span>${new Intl.NumberFormat('en-US', { style: 'currency', currency: settings.currency }).formatToParts(0).find(p => p.type === 'currency').value}</span><input id="amount" name="amount" inputmode="decimal" placeholder="0.00" value="${item ? (item.amount / 100).toFixed(2) : ''}" required autocomplete="off" maxlength="12" aria-label="Transaction amount" autofocus></div><label class="field-label" for="name">What was it for?</label><input class="text-input" id="name" name="name" placeholder="Coffee, groceries, a little treat…" value="${escape(item?.name || '')}" required maxlength="100" autocomplete="off"><fieldset class="category-picker"><legend>Category <span>optional</span></legend><div>${CATEGORIES.map(c => `<label class="category-option"><input type="radio" name="category" value="${c.id}" ${(item?.category || 'misc') === c.id ? 'checked' : ''}><span>${icon(c.icon)}${c.name}</span></label>`).join('')}</div></fieldset><details class="date-details" ${item ? 'open' : ''}><summary>${icon('calendar')}<span>${item ? 'Transaction date' : 'Today, right now'}</span><small>Change date</small>${icon('down')}</summary><label class="field-label" for="date">Date & time <span>optional · defaults to now</span></label><input class="text-input" id="date" name="date" type="datetime-local" value="${item ? localInput(new Date(item.date)) : ''}"></details><p id="form-error" class="form-error" role="alert"></p><button class="button primary save-button" type="submit">${icon(item ? 'check' : 'plus')}${item ? 'Save changes' : 'Add transaction'}</button>${item ? `<button type="button" class="text-button danger delete-button" data-delete="${escape(item.id)}">Delete transaction</button>` : '<p class="form-privacy">'+icon('shield')+' Saved only on this device. Always.</p>'}</form>`);
+  showDialog(`<div class="modal-heading"><div><span class="eyebrow">EVERY PENNY HAS A PLACE</span><h2>${item ? 'A little adjustment.' : 'What did you spend?'}</h2><p>${item ? 'Keep the details just right.' : 'The everyday things count, too.'}</p></div><button class="icon-button" data-action="close" aria-label="Close form">${icon('close')}</button></div><form id="transaction-form" data-id="${escape(item?.id || '')}"><label class="amount-label" for="amount">Amount <span>${settings.currency}</span></label><div class="amount-input"><span>${new Intl.NumberFormat('en-US', { style: 'currency', currency: settings.currency }).formatToParts(0).find(p => p.type === 'currency').value}</span><input id="amount" name="amount" inputmode="decimal" placeholder="0.00" value="${item ? (item.amount / 100).toFixed(2) : ''}" required autocomplete="off" maxlength="12" aria-label="Transaction amount" autofocus></div><label class="field-label" for="name">What was it for?</label><input class="text-input" id="name" name="name" placeholder="Coffee, groceries, a little treat…" value="${escape(item?.name || '')}" required maxlength="100" autocomplete="off"><fieldset class="category-picker"><legend>Category <span>optional</span></legend><div>${categoriesFor(records()).map(c => `<label class="category-option"><input type="radio" name="category" value="${escape(c.id)}" ${categoryKey(item?.category) === categoryKey(c.id) ? 'checked' : ''}><span>${icon(c.icon)}${escape(c.name)}</span></label>`).join('')}</div><label class="field-label" for="custom-category">Or add a category</label><input class="text-input" id="custom-category" name="customCategory" placeholder="e.g. Pets or Travel" maxlength="40" autocomplete="off"></fieldset><details class="date-details" ${item ? 'open' : ''}><summary>${icon('calendar')}<span>${item ? 'Transaction date' : 'Today, right now'}</span><small>Change date</small>${icon('down')}</summary><label class="field-label" for="date">Date & time <span>optional · defaults to now</span></label><input class="text-input" id="date" name="date" type="datetime-local" value="${item ? localInput(new Date(item.date)) : ''}"></details><p id="form-error" class="form-error" role="alert"></p><button class="button primary save-button" type="submit">${icon(item ? 'check' : 'plus')}${item ? 'Save changes' : 'Add transaction'}</button>${item ? `<button type="button" class="text-button danger delete-button" data-delete="${escape(item.id)}">Delete transaction</button>` : '<p class="form-privacy">'+icon('shield')+' Saved only on this device. Always.</p>'}</form>`);
 }
 function openRange() {
   const r = range();
@@ -187,7 +190,7 @@ document.addEventListener('click', async event => {
   const target = event.target.closest('button');
   if (!target) return;
   try {
-    if (target.dataset.page) { state.page = target.dataset.page; state.search = ''; state.category = 'all'; render(); window.scrollTo({ top: 0 }); }
+    if (target.dataset.page) { state.page = target.dataset.page; state.search = ''; state.category = ''; render(); window.scrollTo({ top: 0 }); }
     if (target.dataset.period) { state.period = target.dataset.period; state.anchor = new Date(); render(); }
     if (target.dataset.edit) openTransaction(target.dataset.edit);
     if (target.dataset.delete) {
@@ -203,6 +206,7 @@ document.addEventListener('click', async event => {
       closeDialog(); render();
     }
     switch (target.dataset.action) {
+      case 'dismiss-url-notice': urlNotice = null; render(); break;
       case 'add': openTransaction(); break;
       case 'close': closeDialog(); break;
       case 'range': openRange(); break;
@@ -217,7 +221,7 @@ document.addEventListener('click', async event => {
       case 'snooze': await updateSettings({ reminderSnooze: new Date(Date.now() + 86400000).toISOString() }); render(); break;
       case 'demo': startDemo(); break;
       case 'demo-exit': state.demo = false; render(); break;
-      case 'reset-search': state.search = ''; state.category = 'all'; render(); break;
+      case 'reset-search': state.search = ''; state.category = ''; render(); break;
       case 'persist': persistent = await navigator.storage?.persist?.() || false; render(); toast(persistent ? 'Persistent storage is granted.' : 'Your browser decides storage protection. Regular CSV backups help keep records safe.'); break;
       case 'copy-link': {
         const url = new URL('./?add=1', location.href).href;
@@ -240,7 +244,7 @@ document.addEventListener('submit', async event => {
       const date = data.get('date') ? new Date(data.get('date')) : new Date();
       if (Number.isNaN(date.getTime())) throw new Error('Choose a valid date and time.');
       submit.disabled = true;
-      const item = { id: form.dataset.id || crypto.randomUUID(), name, amount, category: data.get('category') || 'misc', date: date.toISOString() };
+      const item = { id: form.dataset.id || crypto.randomUUID(), name, amount, category: normalizeCategory(data.get('customCategory').trim() || data.get('category') || 'misc'), date: date.toISOString() };
       await db.saveTransaction(item);
       closeDialog(); await refresh(); toast(form.dataset.id ? 'Transaction updated.' : 'A penny accounted for. Transaction added.');
     } catch (error) { form.querySelector('#form-error').textContent = error.name === 'QuotaExceededError' ? 'Device storage is full. Export a backup and free up space.' : error.message; submit.disabled = false; }
@@ -262,6 +266,9 @@ document.addEventListener('input', event => {
   }
 });
 document.addEventListener('change', async event => {
+  if (event.target.matches('#transaction-form input[name="category"]')) {
+    document.querySelector('#custom-category').value = '';
+  }
   try {
     switch (event.target.id) {
       case 'category-filter': state.category = event.target.value; render(); break;
@@ -286,7 +293,23 @@ async function init() {
     if (saved) settings = { ...settings, ...saved }; else await db.saveSettings(settings);
     persistent = await navigator.storage?.persisted?.() || false;
     render();
-    if (new URLSearchParams(location.search).get('add') === '1' || settings.quickLaunch) openTransaction();
+    const urlEntries = installURLTransactions({
+      save: db.insertURLTransaction,
+      onResult: async result => {
+        state.demo = false;
+        urlNotice = { message: `Added ${result.transaction.name} · ${money(result.transaction.amount)}. Saved on this device.` };
+        try { transactions = await db.getTransactions(); }
+        catch { urlNotice.message += ' Reload to refresh the transaction list.'; }
+        render();
+        channel?.postMessage('changed');
+      },
+      onError: error => {
+        urlNotice = { error: true, message: `Transaction not added. ${error.message}` };
+        render();
+      },
+    });
+    const urlResult = await urlEntries.ready;
+    if (!urlResult && (new URLSearchParams(location.search).get('add') === '1' || settings.quickLaunch)) openTransaction();
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => toast('Offline setup couldn’t finish. Reopen Penny online to try again.'));
     if (!persistent) navigator.storage?.persist?.().then(value => { persistent = value; }).catch(() => {});
   } catch (error) {
