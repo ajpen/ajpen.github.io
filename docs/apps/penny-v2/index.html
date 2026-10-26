@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f8f9fc" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Penny" />
+    <meta name="description" content="A little clarity for your everyday spending. A private, offline budget app that keeps your data on your device." />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" />
+    <link rel="icon" type="image/svg+xml" href="./public/icons/icon.svg" />
+    <link rel="apple-touch-icon" href="./public/icons/apple-touch-icon.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./src/styles.css" />
+    <title>Penny · Your money, a little clearer</title>
+  </head>
+  <body>
+    <div id="app"><div class="boot">Getting your pennies in order…</div></div>
+    <div id="dialogs"></div>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <noscript>Penny needs JavaScript to save transactions on your device. Enable it to continue.</noscript>
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
