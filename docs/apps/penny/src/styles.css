@@ -18,3 +18,5 @@
 /* Custom names wrap within narrow phone layouts. */
 .category-option>span,.category-badge,.category-value,.category-legend>div>span{overflow-wrap:anywhere;white-space:normal}
 .category-picker .field-label{margin-top:16px}
+
+.diagnostic-panel{padding:20px;margin-bottom:24px}.diagnostic-panel>p{font-size:12px;line-height:1.7;color:#71677f}.diagnostic-actions{display:flex;flex-wrap:wrap;gap:8px}.diagnostic-actions .button{min-height:44px}.diagnostic-entry{padding:12px 0;border-top:1px solid #eeeaf4;font-size:12px;overflow-wrap:anywhere}.diagnostic-entry time{color:#7d738c}.diagnostic-entry strong{font-weight:600}.diagnostic-entry.error strong{color:#ab3746}.diagnostic-entry.warn strong{color:#94601c}.diagnostic-entry pre{white-space:pre-wrap;overflow-wrap:anywhere;margin:6px 0 0;font:11px/1.6 ui-monospace,monospace;color:#62596e}.diagnostic-copy{width:100%;height:50vh;font-size:16px;white-space:pre-wrap}

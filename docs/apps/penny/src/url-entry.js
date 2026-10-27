@@ -1,4 +1,5 @@
 import { normalizeCategory, amountToCents } from './core.js';
+import { log, urlDetails, errorDetails, transactionDetails } from './diagnostics.js';
 
 const FIELDS = ['name', 'amount', 'category', 'date'];
 
@@ -13,6 +14,8 @@ export function parseTransactionURL(href, { now = new Date() } = {}) {
   catch { throw new Error('Invalid URL encoding in transaction payload.'); }
   const data = decodeTransaction(encoded);
   if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('Transaction JSON must be an object.');
+  log('URL transaction decoded', Object.fromEntries(FIELDS.filter(key => Object.hasOwn(data, key)).map(key => [key, typeof data[key] === 'object' && data[key] !== null ? JSON.stringify(data[key]) : data[key]])));
+  log('URL JSON fields', Object.fromEntries([...FIELDS.map(key => [key, data[key] === undefined ? 'missing' : data[key] === null ? 'null' : typeof data[key]]), ['unknownFields', Object.keys(data).filter(key => !FIELDS.includes(key)).length]]));
   for (const key of Object.keys(data)) if (!FIELDS.includes(key)) throw new Error(`Unknown transaction field: ${key}.`);
   if (typeof data.name !== 'string' || !data.name.trim() || data.name.trim().length > 100) throw new Error('Name must contain 1–100 characters.');
   if (typeof data.amount !== 'string' && typeof data.amount !== 'number') throw new Error('Amount is required, for example 5.75.');
@@ -42,11 +45,17 @@ export function encodeTransaction(data) {
   return btoa(Array.from(bytes, byte => String.fromCharCode(byte)).join('')).replaceAll('+', '-').replaceAll('/', '_').replace(/=+$/, '');
 }
 export function decodeTransaction(value) {
+  log('Base64 decode started', { length: value?.length || 0, whitespace: /\s/.test(value || ''), percentEscapes: /%/.test(value || '') });
   if (!value || value.length > 12000 || !/^[A-Za-z0-9+/_-]+={0,2}$/.test(value)) throw new Error('Invalid Base64 transaction.');
   try {
     const text = atob(value.replaceAll('-', '+').replaceAll('_', '/'));
+    log('Base64 decoded', { bytes: text.length });
     if (text.length > 8192) throw new Error();
-    return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(Uint8Array.from(text, char => char.charCodeAt(0))));
+    const json = new TextDecoder('utf-8', { fatal: true }).decode(Uint8Array.from(text, char => char.charCodeAt(0)));
+    log('UTF-8 decoded', { characters: json.length });
+    const data = JSON.parse(json);
+    log('JSON decoded', { type: data === null ? 'null' : Array.isArray(data) ? 'array' : typeof data });
+    return data;
   } catch { throw new Error('Could not decode transaction as UTF-8 Base64 JSON.'); }
 }
 
@@ -55,37 +64,47 @@ export function installURLTransactions({ save, onResult, onError, target = windo
   let stopped = false;
   let uncleanedURL = null;
   const pending = new Map();
-  function processURL() {
+  let attempt = 0;
+  function processURL(event) {
     const href = target.location.href;
-    if (href === uncleanedURL) return Promise.resolve(null);
+    log('URL received', { trigger: event?.type || 'startup/manual', ...urlDetails(href) });
+    if (href === uncleanedURL) { log('URL skipped: already saved, cleanup failed'); return Promise.resolve(null); }
     uncleanedURL = null;
     // A single navigation can emit both popstate and hashchange (or resume).
     // Share its pending save so a success banner isn't replaced by a replay.
-    if (pending.has(href)) return pending.get(href);
+    if (pending.has(href)) { log('URL event coalesced with pending check'); return pending.get(href); }
     queue = queue.then(async () => {
       if (stopped) return null;
-      let entry, result;
+      let entry, result, stage = 'parse';
+      const request = ++attempt;
       try {
         entry = parseTransactionURL(href);
-        if (!entry) return null;
+        if (!entry) { log('No add payload: URL ignored', { request, ...urlDetails(href) }); return null; }
+        log('Transaction validated', { request });
+        stage = 'generate ID';
         entry.transaction.id = crypto.randomUUID();
+        stage = 'save';
+        log('URL save started', { request, ...transactionDetails(entry.transaction) });
         result = await save(entry);
+        log('URL save committed', { request, ...transactionDetails(entry.transaction) });
       } catch (error) {
+        log('URL entry failed', { request, stage, ...errorDetails(error) }, 'error');
         onError(error);
         return { status: 'error' };
       }
       if (target.location.href === href) {
-        try { target.history.replaceState(target.history.state, '', entry.cleanURL); }
-        catch { uncleanedURL = href; } // Don't resave on focus if history is unavailable.
+        try { target.history.replaceState(target.history.state, '', entry.cleanURL); log('URL fragment cleared', { request }); }
+        catch (error) { uncleanedURL = href; log('URL cleanup failed', { request, ...errorDetails(error) }, 'warn'); } // Don't resave on focus if history is unavailable.
       }
-      try { await onResult(result, entry); } catch (error) { console.error('Transaction saved; refresh failed.', error); }
+      try { await onResult(result, entry); log('URL result displayed', { request }); }
+      catch (error) { log('Transaction saved; refresh failed', { request, ...errorDetails(error) }, 'error'); console.error('Transaction saved; refresh failed.', error); }
       return result;
     });
     const result = queue.finally(() => pending.delete(href));
     pending.set(href, result);
     return result;
   }
-  const resume = () => { if (!target.document.hidden) processURL(); };
+  const resume = event => { if (!target.document.hidden) processURL(event); };
   const listeners = [['hashchange', processURL], ['popstate', processURL], ['pageshow', processURL], ['focus', resume]];
   for (const [event, handler] of listeners) target.addEventListener(event, handler);
   target.document.addEventListener('visibilitychange', resume);

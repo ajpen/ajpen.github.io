@@ -1,6 +1,9 @@
 import { categoriesFor, categoryFor, categoryKey, normalizeCategory, localDay, localInput, addDays, amountToCents, periodRange, previousRange, daysInRange, inRange, totalCents, trendBuckets, exportCSV, importCSV } from './core.js';
 import * as db from './storage.js';
 import { installURLTransactions } from './url-entry.js';
+import { BUILD, diagnostics, log, errorDetails, startDiagnostics, diagnosticText } from './diagnostics.js';
+
+startDiagnostics();
 
 const paths = {
   plus: '<path d="M12 5v14M5 12h14"/>',
@@ -51,21 +54,65 @@ function rangeLabel() {
 }
 function navItem(page, label, symbol) { return `<button class="nav-item ${state.page === page ? 'active' : ''}" data-page="${page}" ${state.page === page ? 'aria-current="page"' : ''}>${icon(symbol)}<span>${label}</span>${page === 'overview' ? '<span class="nav-dot"></span>' : ''}</button>`; }
 function render() {
-  const titles = { overview: ['Your spending, at a glance.', 'A little clarity goes a long way.'], transactions: ['The little things add up.', 'All your everyday spending, in one place.'], insights: ['Find your spending rhythm.', 'A closer look at where your money goes.'], settings: ['Make yourself at home.', 'Your preferences. Your data. Your control.'] };
+  const titles = { overview: ['Your spending, at a glance.', 'A little clarity goes a long way.'], transactions: ['The little things add up.', 'All your everyday spending, in one place.'], insights: ['Find your spending rhythm.', 'A closer look at where your money goes.'], console: ['Diagnostic console', 'Recent activity on this device.'], settings: ['Make yourself at home.', 'Your preferences. Your data. Your control.'] };
   app.innerHTML = `<aside class="sidebar"><a class="brand" href="./" aria-label="Penny home"><span class="brand-icon">p<span>•</span></span>penny<span class="brand-period">.</span></a><div class="workspace-label">YOUR MONEY, SIMPLIFIED</div><nav aria-label="Main navigation">${navItem('overview', 'Overview', 'overview')}${navItem('transactions', 'Transactions', 'transactions')}${navItem('insights', 'Insights', 'chart')}${navItem('settings', 'Settings', 'settings')}</nav><div class="sidebar-bottom"><div class="local-card">${icon('shield')}<strong>Just you and your money.</strong><p>Your data stays on this device.<br>No accounts. No cloud. All yours.</p><span><i></i> Private by design</span></div><div class="sidebar-footer"><span class="mini-logo">p.</span> A little more peace of mind.</div></div></aside>
   <div class="main-shell"><header class="topbar"><div class="breadcrumb">My workspace <span>/</span> <strong>${state.page[0].toUpperCase() + state.page.slice(1)}</strong></div><span class="device-label">${icon('shield')} On-device storage</span><button class="avatar" data-page="settings" aria-label="Open settings">P</button></header><main id="main"><section class="page-heading"><div><div class="eyebrow">${state.page === 'overview' ? 'A PENNY FOR YOUR PEACE OF MIND' : 'A LITTLE MORE CLARITY'}</div><h1>${titles[state.page][0]}</h1><p>${titles[state.page][1]}</p></div><button class="button primary desktop-add" data-action="add">${icon('plus')} Add transaction</button></section>
   ${state.demo ? `<div class="demo-banner">${icon('spark')}<span>You’re exploring sample data. Your own records are separate.</span><button data-action="demo-exit">Exit preview ${icon('close')}</button></div>` : ''}
   ${backupDue() ? `<div class="backup-banner">${icon('download')}<span><strong>A little backup goes a long way.</strong> It’s time to export your transactions.</span><button data-action="export">Export CSV</button><button class="icon-button" data-action="snooze" aria-label="Remind me tomorrow">${icon('close')}</button></div>` : ''}
   ${urlNotice ? `<div class="url-entry-notice ${urlNotice.error ? 'error' : ''}" role="${urlNotice.error ? 'alert' : 'status'}">${icon(urlNotice.error ? 'close' : 'check')}<span>${escape(urlNotice.message)}</span><button class="icon-button" data-action="dismiss-url-notice" aria-label="Dismiss URL entry result">${icon('close')}</button></div>` : ''}
-  ${state.page !== 'settings' ? periodControls() : ''}
-  ${state.page === 'overview' ? overview() : state.page === 'transactions' ? transactionPage() : state.page === 'insights' ? insights() : settingsPage()}
+  ${!['settings', 'console'].includes(state.page) ? periodControls() : ''}
+  ${state.page === 'overview' ? overview() : state.page === 'transactions' ? transactionPage() : state.page === 'insights' ? insights() : state.page === 'console' ? consolePage() : settingsPage()}
   <footer class="main-footer"><span>${icon('shield')} A private space for your everyday spending.</span><span>Made for a little more clarity <span class="footer-spark">✧</span></span></footer></main></div>
   <button class="mobile-add" data-action="add" aria-label="Add transaction">${icon('plus')}<span>Add transaction</span></button><nav class="mobile-nav" aria-label="Mobile navigation">${navItem('overview', 'Overview', 'overview')}${navItem('transactions', 'Activity', 'transactions')}${navItem('insights', 'Insights', 'chart')}${navItem('settings', 'Settings', 'settings')}</nav>`;
+  updateConsole();
 }
 function backupDue() {
   if (state.demo || !transactions.length) return false;
   const since = new Date(settings.lastExport || settings.created);
   return Date.now() - since.getTime() >= settings.reminderDays * 86400000 && (!settings.reminderSnooze || Date.now() >= new Date(settings.reminderSnooze).getTime());
+}
+function consolePage() {
+  return `<section class="panel diagnostic-panel"><div class="diagnostic-actions"><button class="button secondary" data-page="settings">Back to Settings</button><button class="button secondary" data-action="refresh-logs">Refresh logs</button><button class="button secondary" data-action="copy-logs">Copy logs</button><button class="button secondary" data-action="clear-logs">Clear logs</button></div><p>Build ${BUILD}. Memory only: up to 100 entries / 32 KB of log text, expiring after 30 minutes. A fresh page load clears logs.</p><p>Run your Shortcut, then return here without reloading. Look for <strong>URL received</strong>, <strong>URL entry failed</strong>, or <strong>URL save committed</strong>. Decoded transaction values and saved records are included. Stored amounts are labeled in cents.</p><p id="diagnostic-count"></p><div id="diagnostic-log" aria-label="Diagnostic log entries">${logMarkup()}</div></section>`;
+}
+function logMarkup() {
+  const { entries } = diagnostics.snapshot();
+  return entries.length ? entries.slice().reverse().map(entry => `<article class="diagnostic-entry ${entry.level}"><div><time datetime="${new Date(entry.time).toISOString()}">${new Date(entry.time).toLocaleTimeString([], { hour12: false })}.${String(entry.time % 1000).padStart(3, '0')}</time> <strong>${escape(entry.level.toUpperCase())} · ${escape(entry.event)}</strong></div><pre>${escape(JSON.stringify(entry.details))}</pre></article>`).join('') : '<p>No recent logs. New activity will appear here.</p>';
+}
+function updateConsole() {
+  const node = document.querySelector('#diagnostic-log');
+  if (!node) return;
+  node.innerHTML = logMarkup();
+  const snapshot = diagnostics.snapshot();
+  document.querySelector('#diagnostic-count').textContent = `${snapshot.entries.length} entries · ${(snapshot.bytes / 1024).toFixed(1)} KB of log text · newest first`;
+}
+let consoleUpdatePending = false;
+diagnostics.subscribe(() => {
+  if (consoleUpdatePending) return;
+  consoleUpdatePending = true;
+  queueMicrotask(() => { consoleUpdatePending = false; updateConsole(); });
+});
+window.addEventListener('diagnostics-pruned', updateConsole);
+function registerOfflineDiagnostics() {
+  if (!('serviceWorker' in navigator)) { log('Service worker unavailable', {}, 'warn'); return; }
+  const workers = navigator.serviceWorker;
+  const controller = () => log('Service worker controller', { controlled: !!workers.controller, state: workers.controller?.state || 'none' });
+  controller();
+  workers.addEventListener('controllerchange', controller);
+  workers.register('./sw.js').then(registration => {
+    log('Service worker registered', { active: registration.active?.state || 'none', waiting: registration.waiting?.state || 'none', installing: registration.installing?.state || 'none' });
+    const watched = new WeakSet();
+    const watch = () => {
+      const worker = registration.installing;
+      if (!worker || watched.has(worker)) return;
+      watched.add(worker);
+      log('Service worker update found', { state: worker.state });
+      worker.addEventListener('statechange', () => log('Service worker state changed', { state: worker.state, waiting: !!registration.waiting }));
+    };
+    watch(); registration.addEventListener('updatefound', watch);
+  }).catch(error => {
+    log('Service worker registration failed', errorDetails(error), 'error');
+    toast('Offline setup couldn’t finish. Reopen Penny online to try again.');
+  });
 }
 function periodControls() {
   return `<section class="period-toolbar" aria-label="Spending period"><div class="segmented" role="group" aria-label="Period">${[['monthly', 'Monthly'], ['biweekly', 'Biweekly'], ['weekly', 'Weekly'], ['daily', 'Daily']].map(([key, label]) => `<button data-period="${key}" aria-pressed="${state.period === key}" class="${state.period === key ? 'selected' : ''}">${label}</button>`).join('')}</div><div class="date-controls"><button class="icon-button" data-action="previous" aria-label="Previous period">${icon('left')}</button><button class="date-range ${state.period === 'custom' ? 'custom-active' : ''}" data-action="range">${icon('calendar')}<span>${rangeLabel()}</span>${icon('down')}</button><button class="icon-button" data-action="next" aria-label="Next period">${icon('right')}</button></div></section>`;
@@ -116,6 +163,7 @@ function settingsPage() {
   return `<div class="settings-grid"><section class="panel settings-panel"><div class="panel-heading"><div><h2>Your preferences</h2><p>Little details that make Penny yours.</p></div>${icon('settings', 'muted')}</div><div class="setting-row"><div><label for="currency">Currency</label><p>Applies to all transactions. No conversion.</p></div><select id="currency" ${transactions.length ? 'disabled title="Currency is fixed while you have transactions to prevent relabeling amounts."' : ''}>${['USD', 'EUR', 'GBP', 'CAD', 'AUD'].map(c => `<option ${settings.currency === c ? 'selected' : ''}>${c}</option>`).join('')}</select></div><div class="setting-row"><div><label for="quick-launch">Start with a new transaction</label><p>Open the entry form when Penny launches.</p></div><input class="switch" type="checkbox" role="switch" id="quick-launch" ${settings.quickLaunch ? 'checked' : ''}></div><div class="setting-row"><div><label for="reminder-days">Backup reminder</label><p>A gentle reminder while you use the app.</p></div><select id="reminder-days">${[7, 14, 30].map(n => `<option value="${n}" ${settings.reminderDays === n ? 'selected' : ''}>Every ${n} days</option>`).join('')}</select></div></section>
   <section class="panel settings-panel"><div class="panel-heading"><div><h2>Your data, in your hands</h2><p>A small backup. A little peace of mind.</p></div>${icon('download', 'muted')}</div><div class="backup-status">${icon('clock')}<div><strong>${settings.lastExport ? 'Last export: ' + new Date(settings.lastExport).toLocaleDateString() : 'Your first backup is waiting'}</strong><p>${transactions.length} transaction${transactions.length === 1 ? '' : 's'} stored on this device</p></div></div><div class="settings-buttons"><button class="button primary" data-action="export">${icon('download')} Export CSV</button><button class="button secondary" data-action="import">${icon('upload')} Import CSV</button></div><p class="settings-help">Import adds records and skips matching IDs. Exported files include all your transactions. Keep a copy somewhere safe.</p><input type="file" id="csv-file" accept=".csv,text/csv" hidden></section>
   <section class="panel settings-panel"><div class="panel-heading"><div><h2>At home on your iPhone</h2><p>Less tapping. More living.</p></div>${icon('home', 'muted')}</div><ol class="install-steps"><li><span>1</span><div>Open Penny in <strong>Safari</strong>.</div></li><li><span>2</span><div>Tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>.</div></li><li><span>3</span><div>Open Penny from its icon. You’re home.</div></li></ol><div class="shortcut-box"><strong>${icon('spark')} A shortcut to your next penny</strong><p>Use this link with the “Open URLs” action in Apple Shortcuts to go straight to the form. On iOS, the link may open Safari; for entry in the installed app, enable “Start with a new transaction” above.</p><button class="button secondary" data-action="copy-link">Copy quick-entry link ${icon('arrow')}</button></div></section>
+  <section class="panel settings-panel"><div class="panel-heading"><div><h2>Diagnostics</h2><p>Check recent app activity and Shortcuts entry.</p></div></div><p class="settings-help">Short-lived logs stay in memory on this device. They reset on a fresh page load.</p><div class="backup-actions"><button class="button secondary" data-page="console">Open diagnostic console</button></div></section>
   <section class="panel settings-panel privacy-panel"><div class="privacy-icon">${icon('shield')}</div><h2>Personal finance.<br>Actually personal.</h2><p>No sign-up. No bank connections. No analytics. Your transactions are stored only in this browser’s storage on this device.</p><div class="storage-status"><i></i>${persistent ? 'Persistent storage granted' : 'Local storage active'}</div><p class="settings-help">${persistent ? 'Your browser has granted persistent storage. ' : 'Penny requests persistent storage when supported. '}Clearing website data, removing the app, or device storage policies can still remove records. Install Penny, use it regularly, and export backups. Safari and the installed app may have separate storage; use CSV to move records between them.</p><button class="text-button" data-action="persist">Check storage protection ${icon('right')}</button></section></div>`;
 }
 function showDialog(content, cls = '') {
@@ -190,7 +238,7 @@ document.addEventListener('click', async event => {
   const target = event.target.closest('button');
   if (!target) return;
   try {
-    if (target.dataset.page) { state.page = target.dataset.page; state.search = ''; state.category = ''; render(); window.scrollTo({ top: 0 }); }
+    if (target.dataset.page) { log('View opened', { view: target.dataset.page }); state.page = target.dataset.page; state.search = ''; state.category = ''; render(); window.scrollTo({ top: 0 }); }
     if (target.dataset.period) { state.period = target.dataset.period; state.anchor = new Date(); render(); }
     if (target.dataset.edit) openTransaction(target.dataset.edit);
     if (target.dataset.delete) {
@@ -206,6 +254,14 @@ document.addEventListener('click', async event => {
       closeDialog(); render();
     }
     switch (target.dataset.action) {
+      case 'clear-logs': diagnostics.clear(); updateConsole(); break;
+      case 'refresh-logs': log('Console refreshed'); updateConsole(); break;
+      case 'copy-logs': {
+        const text = diagnosticText();
+        try { await navigator.clipboard.writeText(text); toast('Diagnostic logs copied.'); }
+        catch { showDialog(`<div class="modal-heading"><h2>Copy diagnostic logs</h2><button class="icon-button" data-action="close" aria-label="Close logs">${icon('close')}</button></div><textarea class="diagnostic-copy" readonly aria-label="Diagnostic logs to copy">${escape(text)}</textarea>`); }
+        break;
+      }
       case 'dismiss-url-notice': urlNotice = null; render(); break;
       case 'add': openTransaction(); break;
       case 'close': closeDialog(); break;
@@ -230,7 +286,7 @@ document.addEventListener('click', async event => {
         break;
       }
     }
-  } catch { toast('That couldn’t be saved. Check device storage and try again.'); }
+  } catch (error) { log('App action failed', errorDetails(error), 'error'); toast('That couldn’t be saved. Check device storage and try again.'); }
 });
 document.addEventListener('submit', async event => {
   event.preventDefault();
@@ -247,7 +303,7 @@ document.addEventListener('submit', async event => {
       const item = { id: form.dataset.id || crypto.randomUUID(), name, amount, category: normalizeCategory(data.get('customCategory').trim() || data.get('category') || 'misc'), date: date.toISOString() };
       await db.saveTransaction(item);
       closeDialog(); await refresh(); toast(form.dataset.id ? 'Transaction updated.' : 'A penny accounted for. Transaction added.');
-    } catch (error) { form.querySelector('#form-error').textContent = error.name === 'QuotaExceededError' ? 'Device storage is full. Export a backup and free up space.' : error.message; submit.disabled = false; }
+    } catch (error) { log('Manual transaction failed', errorDetails(error), 'error'); form.querySelector('#form-error').textContent = error.name === 'QuotaExceededError' ? 'Device storage is full. Export a backup and free up space.' : error.message; submit.disabled = false; }
   }
   if (form.id === 'range-form') {
     const data = new FormData(form), start = data.get('start'), end = data.get('end');
@@ -281,7 +337,7 @@ document.addEventListener('change', async event => {
 });
 async function sync() {
   if (dialogs.querySelector('dialog[open]')) return;
-  try { transactions = await db.getTransactions(); settings = { ...settings, ...await db.getSettings() }; render(); } catch { /* Keep last successfully loaded view. */ }
+  try { transactions = await db.getTransactions(); settings = { ...settings, ...await db.getSettings() }; render(); } catch (error) { log('Background refresh failed', errorDetails(error), 'warn'); }
 }
 channel?.addEventListener('message', sync);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) sync(); });
@@ -292,6 +348,7 @@ async function init() {
     const saved = await db.getSettings();
     if (saved) settings = { ...settings, ...saved }; else await db.saveSettings(settings);
     persistent = await navigator.storage?.persisted?.() || false;
+    log('App ready', { transactions: transactions.length, persistent });
     render();
     const urlEntries = installURLTransactions({
       save: db.insertURLTransaction,
@@ -299,7 +356,7 @@ async function init() {
         state.demo = false;
         urlNotice = { message: `Added ${result.transaction.name} · ${money(result.transaction.amount)}. Saved on this device.` };
         try { transactions = await db.getTransactions(); }
-        catch { urlNotice.message += ' Reload to refresh the transaction list.'; }
+        catch (error) { log('Transaction list refresh failed', errorDetails(error), 'error'); urlNotice.message += ' Reload to refresh the transaction list.'; }
         render();
         channel?.postMessage('changed');
       },
@@ -310,10 +367,11 @@ async function init() {
     });
     const urlResult = await urlEntries.ready;
     if (!urlResult && (new URLSearchParams(location.search).get('add') === '1' || settings.quickLaunch)) openTransaction();
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => toast('Offline setup couldn’t finish. Reopen Penny online to try again.'));
+    registerOfflineDiagnostics();
     if (!persistent) navigator.storage?.persist?.().then(value => { persistent = value; }).catch(() => {});
   } catch (error) {
-    app.innerHTML = `<main class="storage-error"><span class="brand-icon">p.</span><h1>Your pennies need a safe home.</h1><p>Penny couldn’t open storage on this device. Enable website storage, leave private browsing, or free up device space, then reload.</p><p>${escape(error.message)}</p><button class="button primary" id="retry">Try again</button></main>`;
+    log('App startup failed', errorDetails(error), 'error');
+    app.innerHTML = `<main class="storage-error"><span class="brand-icon">p.</span><h1>Your pennies need a safe home.</h1><p>Penny couldn’t open storage on this device. Enable website storage, leave private browsing, or free up device space, then reload.</p><p>${escape(error.message)}</p><button class="button primary" id="retry">Try again</button><button class="button secondary" data-page="console">Open diagnostic console</button></main>`;
     document.querySelector('#retry').onclick = () => location.reload();
   }
 }
