@@ -1,4 +1,4 @@
-const CACHE = 'penny-shell-v8-transaction-logs';
+const CACHE = 'penny-shell-v9-transaction-logs';
 const SHELL = ['./', './index.html', './src/app.js', './src/core.js', './src/storage.js', './src/url-entry.js', './src/diagnostics.js', './src/styles.css', './manifest.webmanifest', './public/icons/icon.svg', './public/icons/icon-192.png', './public/icons/icon-512.png', './public/icons/apple-touch-icon.png'];
 self.addEventListener('install', event => { event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL))); });
 self.addEventListener('activate', event => {

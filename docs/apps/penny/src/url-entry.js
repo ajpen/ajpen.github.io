@@ -3,15 +3,24 @@ import { log, urlDetails, errorDetails, transactionDetails } from './diagnostics
 
 const FIELDS = ['name', 'amount', 'category', 'date'];
 
-// Keep the entire payload in the fragment, outside HTTP requests.
+// The payload travels in the fragment (#add=…) to stay out of HTTP requests;
+// iOS strips the fragment when deep-linking into an installed PWA, so the
+// same payload is also accepted as ?add=… in that case.
 export function parseTransactionURL(href, { now = new Date() } = {}) {
   const url = new URL(href);
-  if (url.hash !== '#add' && !url.hash.startsWith('#add=')) return null;
   if (href.length > 16384) throw new Error('Transaction URL exceeds the 16 KB limit.');
-  // Unlike query parsing, this preserves literal + characters in Base64.
-  let encoded;
-  try { encoded = decodeURIComponent(url.hash.slice(5)); }
-  catch { throw new Error('Invalid URL encoding in transaction payload.'); }
+  let encoded = null;
+  if (url.hash.startsWith('#add=')) {
+    // Unlike query parsing, this preserves literal + characters in Base64.
+    try { encoded = decodeURIComponent(url.hash.slice(5)); }
+    catch { throw new Error('Invalid URL encoding in transaction payload.'); }
+  } else if (url.hash === '' || url.hash === '#add') {
+    // searchParams decodes %XX for us, so Base64url (no +, /, or = padding) is
+    // the safe alphabet in a query string. ?add=1 stays the quick-entry form link.
+    const query = url.searchParams.get('add');
+    if (query && query !== '1') encoded = query;
+  }
+  if (encoded === null) return null;
   const data = decodeTransaction(encoded);
   if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('Transaction JSON must be an object.');
   log('URL transaction decoded', Object.fromEntries(FIELDS.filter(key => Object.hasOwn(data, key)).map(key => [key, typeof data[key] === 'object' && data[key] !== null ? JSON.stringify(data[key]) : data[key]])));
@@ -24,6 +33,7 @@ export function parseTransactionURL(href, { now = new Date() } = {}) {
   const date = data.date === undefined || data.date === '' ? null : parseDate(data.date);
   const transaction = { name: data.name.trim(), amount, category, date: date ?? new Date(now).toISOString() };
   url.hash = '';
+  url.searchParams.delete('add');
   return { transaction, cleanURL: url.href };
 }
 

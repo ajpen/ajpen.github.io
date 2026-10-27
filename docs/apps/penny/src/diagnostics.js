@@ -1,7 +1,9 @@
 export const BUILD = '2026-10-27-console-2';
 export const LOG_LIMITS = { entries: 100, bytes: 32 * 1024, age: 30 * 60 * 1000 };
 const encoder = new TextEncoder();
-const short = value => String(value).slice(0, 220);
+// Values are capped at the URL limit so a full href survives; the 100-entry /
+// 32 KB budget above still bounds the whole log.
+const short = value => String(value).slice(0, 16384);
 
 // No IndexedDB, localStorage, network, or console interception. A new document
 // gets an empty buffer; diagnostics must never interfere with transaction saves.
@@ -51,13 +53,15 @@ export function urlDetails(href) {
   try {
     const url = new URL(href), hash = url.hash;
     return {
+      href,
       origin: url.origin, path: url.pathname,
       queryPresent: !!url.search, queryLength: url.search.length,
+      queryHasAdd: url.searchParams.has('add') && url.searchParams.get('add') !== '1',
       fragmentLength: hash.length,
       fragment: !hash ? 'none' : hash.startsWith('#add=') ? '#add=' : hash === '#add' ? '#add (no payload)' : hash.startsWith('#add') ? '#add (wrong separator)' : 'unrecognized',
       payloadLength: hash.startsWith('#add=') ? hash.length - 5 : 0,
     };
-  } catch { return { invalidURL: true }; }
+  } catch { return { href, invalidURL: true }; }
 }
 export function startDiagnostics(target = window) {
   log('App started', {
